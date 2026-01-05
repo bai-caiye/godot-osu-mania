@@ -1,0 +1,50 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="osu!mania"
+config/tags=PackedStringArray("rhythm")
+run/main_scene="uid://c8pwgnjv1j53r"
+config/features=PackedStringArray("4.6", "Mobile")
+boot_splash/bg_color=Color(0, 0, 0, 1)
+boot_splash/show_image=false
+boot_splash/stretch_mode=0
+boot_splash/use_filter=false
+config/icon="uid://5gluig4g31ns"
+
+[autoload]
+
+SongLoader="*res://globals/SongLoader.gd"
+
+[debug]
+
+gdscript/run_on_separate_thread=false
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/size/always_on_top=true
+window/size/sharp_corners=true
+window/size/maximize_disabled=true
+window/size/window_width_override=1152
+window/size/window_height_override=648
+window/stretch/mode="viewport"
+
+[input_devices]
+
+sensors/enable_object_picking=true
+sensors/stretch/aspect="keep"
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"

@@ -1,0 +1,111 @@
+[gd_scene format=3 uid="uid://di540o7ct7cpu"]
+
+[ext_resource type="Script" uid="uid://cewpisdnjhlpj" path="res://scenes/tracks.gd" id="1_q8g2o"]
+
+[node name="Tracks" type="Control" unique_id=1231323752 node_paths=PackedStringArray("tracks", "line")]
+layout_mode = 3
+anchors_preset = 13
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_q8g2o")
+key_quantity = 4
+track_H = 70.0
+track_A = 0.9
+line_Y = 850.0
+tracks = [NodePath("tracks/track1"), NodePath("tracks/track2"), NodePath("tracks/track3"), NodePath("tracks/track4"), NodePath("tracks/track5"), NodePath("tracks/track6"), NodePath("tracks/track7"), NodePath("tracks/track8"), NodePath("tracks/track9"), NodePath("tracks/track10")]
+line = NodePath("Line")
+
+[node name="tracks" type="HBoxContainer" parent="." unique_id=628287528]
+layout_mode = 1
+anchors_preset = 13
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="track1" type="ColorRect" parent="tracks" unique_id=1061954239]
+modulate = Color(1, 1, 1, 0.9)
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+color = Color(0, 0, 0, 0.745098)
+
+[node name="track2" type="ColorRect" parent="tracks" unique_id=1081828980]
+modulate = Color(1, 1, 1, 0.9)
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+color = Color(0, 0, 0, 0.745098)
+
+[node name="track3" type="ColorRect" parent="tracks" unique_id=1923319582]
+modulate = Color(1, 1, 1, 0.9)
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+color = Color(0, 0, 0, 0.745098)
+
+[node name="track4" type="ColorRect" parent="tracks" unique_id=1448035113]
+modulate = Color(1, 1, 1, 0.9)
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+color = Color(0, 0, 0, 0.745098)
+
+[node name="track5" type="ColorRect" parent="tracks" unique_id=394240372]
+visible = false
+modulate = Color(1, 1, 1, 0.9)
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+color = Color(0, 0, 0, 0.745098)
+
+[node name="track6" type="ColorRect" parent="tracks" unique_id=980386697]
+visible = false
+modulate = Color(1, 1, 1, 0.9)
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+color = Color(0, 0, 0, 0.745098)
+
+[node name="track7" type="ColorRect" parent="tracks" unique_id=1910283974]
+visible = false
+modulate = Color(1, 1, 1, 0.9)
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+color = Color(0, 0, 0, 0.745098)
+
+[node name="track8" type="ColorRect" parent="tracks" unique_id=2029904727]
+visible = false
+modulate = Color(1, 1, 1, 0.9)
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+color = Color(0, 0, 0, 0.745098)
+
+[node name="track9" type="ColorRect" parent="tracks" unique_id=1257928828]
+visible = false
+modulate = Color(1, 1, 1, 0.9)
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+color = Color(0, 0, 0, 0.745098)
+
+[node name="track10" type="ColorRect" parent="tracks" unique_id=886310994]
+visible = false
+modulate = Color(1, 1, 1, 0.9)
+custom_minimum_size = Vector2(70, 0)
+layout_mode = 2
+color = Color(0, 0, 0, 0.745098)
+
+[node name="Line" type="ColorRect" parent="." unique_id=1745143330]
+custom_minimum_size = Vector2(280, 3)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -120.0
+offset_top = 310.0
+offset_right = 120.0
+offset_bottom = 313.0
+grow_horizontal = 2
+grow_vertical = 2
