@@ -15,6 +15,7 @@ script = ExtResource("2_33cqm")
 song_floder_path = "C:/Users/BaiCaiye/AppData/Roaming/Godot/app_userdata/osu!mania/songs/void (Mournfinale) feat"
 chart_path = "C:/Users/BaiCaiye/AppData/Roaming/Godot/app_userdata/osu!mania/songs/void (Mournfinale) feat/void (Mournfinale) feat. Hoshikuma Minami - Testify (Akasha-) [Future  Alleyne's Insane].osu"
 speed = 1500.0
+offset = 0.1
 bg = NodePath("BG")
 music = NodePath("Music")
 tracks = NodePath("Tracks")
@@ -38,7 +39,6 @@ metadata/_edit_lock_ = true
 layout_mode = 1
 
 [node name="Notes" type="MultiMeshInstance2D" parent="Tracks" unique_id=1048333321]
-position = Vector2(-384, 10000)
 
 [node name="Music" type="AudioStreamPlayer" parent="." unique_id=1590063657]
 
