@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://dg2x2r4d03q06"]
+
+[ext_resource type="Script" uid="uid://m7cn1glcr31h" path="res://scenes/UI/texture_button.gd" id="2_pq510"]
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_1rteh"]
+
+[node name="TextureButton" type="TextureButton" unique_id=1122058957 node_paths=PackedStringArray("title")]
+self_modulate = Color(0.5, 0.5, 0.5, 1)
+clip_children = 2
+custom_minimum_size = Vector2(0, 120)
+offset_right = 600.0
+offset_bottom = 120.0
+size_flags_horizontal = 3
+texture_normal = SubResource("CanvasTexture_1rteh")
+ignore_texture_size = true
+stretch_mode = 6
+script = ExtResource("2_pq510")
+title = NodePath("Title")
+
+[node name="Title" type="Label" parent="." unique_id=46296663]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 11.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 32
+text = "title"
+autowrap_mode = 3

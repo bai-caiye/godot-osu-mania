@@ -1,29 +1,31 @@
 [gd_scene format=3 uid="uid://c8pwgnjv1j53r"]
 
-[ext_resource type="Script" uid="uid://cx7qn3h4d055g" path="res://scenes/controller.gd" id="2_33cqm"]
-[ext_resource type="PackedScene" uid="uid://di540o7ct7cpu" path="res://scenes/tracks.tscn" id="2_dbls1"]
-[ext_resource type="Script" uid="uid://noqgsys81fw7" path="res://scenes/progress_bar.gd" id="3_lnu2h"]
+[ext_resource type="Script" uid="uid://cx7qn3h4d055g" path="res://scenes/game/controller.gd" id="2_33cqm"]
+[ext_resource type="PackedScene" uid="uid://di540o7ct7cpu" path="res://scenes/game/tracks.tscn" id="2_dbls1"]
+[ext_resource type="Script" uid="uid://noqgsys81fw7" path="res://scenes/game/progress_bar.gd" id="3_lnu2h"]
 
 [node name="Controller" type="Control" unique_id=1751518332 node_paths=PackedStringArray("bg", "music", "tracks", "node2d_notes", "lead_in_timer", "progress_bar")]
+process_mode = 3
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 script = ExtResource("2_33cqm")
-song_floder_path = "C:/Users/BaiCaiye/AppData/Roaming/Godot/app_userdata/osu!mania/songs/void (Mournfinale) feat"
-chart_path = "C:/Users/BaiCaiye/AppData/Roaming/Godot/app_userdata/osu!mania/songs/void (Mournfinale) feat/void (Mournfinale) feat. Hoshikuma Minami - Testify (Akasha-) [Future  Alleyne's Insane].osu"
+chart_path = "C:/Users/BaiCaiye/AppData/Roaming/Godot/app_userdata/osu!mania/songs/Hiiragi Magnetite - Tetoris/Hiiragi Magnetite - Tetoris (RTrigger) [Hard].osu"
 speed = 1500.0
-offset = 0.1
 bg = NodePath("BG")
 music = NodePath("Music")
 tracks = NodePath("Tracks")
 node2d_notes = NodePath("Tracks/Notes")
 lead_in_timer = NodePath("Lead-inTimer")
 progress_bar = NodePath("ProgressBar")
+metadata/_edit_lock_ = true
 
 [node name="BG" type="TextureRect" parent="." unique_id=1366531993]
+process_mode = 4
 modulate = Color(0.5, 0.5, 0.5, 1)
 layout_mode = 1
 anchors_preset = 15
@@ -31,21 +33,29 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 expand_mode = 1
 stretch_mode = 6
 metadata/_edit_lock_ = true
 
 [node name="Tracks" parent="." unique_id=1244043121 instance=ExtResource("2_dbls1")]
+process_mode = 4
 layout_mode = 1
 
 [node name="Notes" type="MultiMeshInstance2D" parent="Tracks" unique_id=1048333321]
+process_mode = 1
+process_priority = 1
+z_index = 1
 
 [node name="Music" type="AudioStreamPlayer" parent="." unique_id=1590063657]
+process_mode = 1
 
 [node name="Lead-inTimer" type="Timer" parent="." unique_id=1496072064]
+process_mode = 1
 one_shot = true
 
 [node name="ProgressBar" type="ColorRect" parent="." unique_id=479438872 node_paths=PackedStringArray("music")]
+process_mode = 1
 custom_minimum_size = Vector2(0, 3)
 layout_mode = 1
 anchors_preset = 12
@@ -55,6 +65,8 @@ anchor_bottom = 1.0
 offset_top = -3.0
 grow_horizontal = 2
 grow_vertical = 0
+mouse_filter = 2
 color = Color(1, 1, 1, 0.5882353)
 script = ExtResource("3_lnu2h")
 music = NodePath("../Music")
+metadata/_edit_lock_ = true

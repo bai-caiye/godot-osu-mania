@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://di540o7ct7cpu"]
 
-[ext_resource type="Script" uid="uid://cewpisdnjhlpj" path="res://scenes/tracks.gd" id="1_q8g2o"]
+[ext_resource type="Script" uid="uid://cewpisdnjhlpj" path="res://scenes/game/tracks.gd" id="1_q8g2o"]
 
 [node name="Tracks" type="Control" unique_id=1231323752 node_paths=PackedStringArray("tracks", "line")]
 layout_mode = 3

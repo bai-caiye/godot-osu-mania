@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://criwi1eyinjkn"]
 
-[ext_resource type="Script" uid="uid://dnf88humvbdiq" path="res://scenes/note.gd" id="1_aw0x3"]
+[ext_resource type="Script" uid="uid://dnf88humvbdiq" path="res://scenes/game/note.gd" id="1_aw0x3"]
 
 [sub_resource type="QuadMesh" id="QuadMesh_aw0x3"]
 center_offset = Vector3(0.5, 0.505, 0)
