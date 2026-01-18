@@ -4,7 +4,6 @@ extends Node
 const SONGS_PATH :String = "user://songs/"
 signal osz_loaded  ## 曲包加载结束后发送的信号
 
-
 func _ready() -> void:
 	if !DirAccess.dir_exists_absolute(SONGS_PATH): DirAccess.make_dir_absolute(SONGS_PATH)
 	get_viewport().files_dropped.connect(load_osz)
@@ -40,30 +39,35 @@ func get_songs() -> Array[Song]:
 
 ## 根据所选谱面(chart)返回beatmap(包含音乐和图片的谱面)
 func load_beatmap(chart_path :String) -> Beatmap:
-	if !FileAccess.file_exists(chart_path): return Beatmap.new()
+	if chart_path.get_extension() != "osu" or!FileAccess.file_exists(chart_path):
+		printerr("加载beatmap失败: 路径文件错误"); return Beatmap.new()
 	
 	var song_path :String = chart_path.get_base_dir()
 	var beatmap :Beatmap = Beatmap.new()
 	beatmap.chart = FileAccess.get_file_as_string(chart_path).split("\r\n")
+	
+	if beatmap.chart[0] != "osu file format v14": printerr("加载beatmap失败: 不支持该谱面版本"); return Beatmap.new()
 	
 	#查找谱面指定音频文件
 	var audio_path :String = song_path.path_join(beatmap.chart[beatmap.chart.find("[General]")+1].get_slice(": ",1))
 	match audio_path.get_extension():
 		"mp3": beatmap.music = load_audio(audio_path, &"mp3")
 		"ogg": beatmap.music = load_audio(audio_path, &"ogg")
-		
+	
 	beatmap.image = load_image(
 		song_path.path_join(
 			beatmap.chart[beatmap.chart.find("[Events]")+2].get_slice(",",2).trim_prefix('"').trim_suffix('"')))
+	
 	return beatmap
 
 
 ## 加载曲目信息 可以传谱面或谱面文件路径
 func load_beatmap_data(chart) -> Dictionary:
-	if !chart is PackedStringArray:
-		if FileAccess.file_exists(chart):
-			chart = FileAccess.get_file_as_string(chart).split("\r\n")
-		else: printerr("读取谱面数据失败参数有不正确")
+	if !chart is PackedStringArray and FileAccess.file_exists(chart):
+		chart = FileAccess.get_file_as_string(chart).split("\r\n")
+	elif chart.is_empty():
+		printerr("读取谱面信息失败: 参数不正确")
+		return {}
 	
 	var beatmap_data :Dictionary = {
 	&"Title":"",         #音乐名称
@@ -74,6 +78,7 @@ func load_beatmap_data(chart) -> Dictionary:
 	&"Version":"",}      #版本
 	
 	var index :int = chart.find("[Metadata]") + 1
+	if index == 0: printerr("读取谱面信息失败: 信息不存在"); return {}
 	while chart[index] != "":  
 		match chart[index].get_slice(":",0):
 			"Title": beatmap_data[&"Title"] = chart[index].get_slice(":",1)

@@ -24,8 +24,8 @@ var pause :bool = false:
 var _pool: Array = []
 var _pool_initial_size: int = 20
 
-var note_quantity: int  ## 音符总数
-var notes_data: Array = []
+var note_quantity: int        ## 音符总数
+var notes_data: Array = [] 
 var notes_data_index: int = 0
 var active_notes: Array = []
 
@@ -52,31 +52,35 @@ func _ready() -> void:
 	set_physics_process(false)
 	set_process_input(false)
 	set_process(false)
+	if chart_path.is_empty(): return
 	
-	load_beatmap()
+	load_beatmap(chart_path)
 	line_y = tracks.line_Y
-	_prewarm_pool()
 	lead_in_timer.start()
+	_prewarm_pool()
 	set_process(true)
 	
 	await lead_in_timer.timeout
 	music.play()
+	
 
 ## 重开
 func restart(_chart_path :String) -> void:
 	set_process(false)
 	if music.stream: music.stop()
 	
+	music_time = 0.0
 	notes_data_index = 0
 	for i in active_notes.size():
 		pool_release(active_notes[i][&"node"])
 	active_notes.clear()
 	
 	if chart_path != _chart_path:
+		chart_path = _chart_path
 		notes_data.clear()
 		timing_points.clear()
-		load_beatmap()
-	
+		if load_beatmap(chart_path) != OK: printerr("重开失败"); return
+		
 	lead_in_timer.start()
 	pause = false
 	
@@ -84,25 +88,29 @@ func restart(_chart_path :String) -> void:
 	music.play()
 
 
-func load_beatmap() -> void:
-	var beatmap := SongLoader.load_beatmap(chart_path)
+func load_beatmap(_chart_path :String) -> Error:
+	var beatmap := SongLoader.load_beatmap(_chart_path)
+	if beatmap.chart.is_empty(): printerr("谱面读取错误"); return ERR_UNAVAILABLE
+	
 	bg.texture = beatmap.image
 	music.stream  = beatmap.music
 	chart = beatmap.chart
-	beatmap_data = SongLoader.load_beatmap_data(chart)
-	
-	note_quantity = chart.size() - chart.find("[HitObjects]") - 2
-	key_quantity = beatmap_data[&"CircleSize"]
-	tracks.key_quantity = key_quantity
-	
 	node2d_notes.global_position = Vector2(tracks.position.x - tracks.track_H * 2, 0.0)
 	progress_bar.length = music.stream.get_length()
 	
+	beatmap_data = SongLoader.load_beatmap_data(chart)
+	if beatmap_data.is_empty(): printerr("谱面信息读取错误"); return ERR_UNAVAILABLE
+	
 	load_timing_points(chart)
 	load_notes_data(chart)
+	note_quantity = notes_data.size()
+	key_quantity = beatmap_data[&"CircleSize"]
+	tracks.key_quantity = key_quantity
+	
 	precalculate_lead_times()
+	return OK
 
-
+## 主要循环
 func _process(_delta: float) -> void:
 	music_time = music.get_playback_position() - lead_in_timer.time_left
 	speed_scale = get_speed_scale(music_time)
@@ -116,33 +124,30 @@ func _process(_delta: float) -> void:
 func spawn_notes() -> void:
 	while notes_data_index < notes_data.size():
 		var note_data: Dictionary = notes_data[notes_data_index]
-		var lead_time: float = note_data[&"lead_time"]
+		## 如果不符合条件直接退出否则继续执行
+		if !note_data[&"time"] - music_time <= note_data[&"lead_time"]: break
 		
-		if note_data[&"time"] - music_time <= lead_time: 
-			var note_node: Node2D = pool_acquire()
+		var note_node: Node2D = pool_acquire()
+		note_node.type = note_data[&"type"]
+		note_node.scale.x = tracks.track_H
+		note_node.track = note_data[&"track_index"]
+		note_node.time = note_data[&"time"] + offset
+		note_node.end_time = note_data[&"end_time"] + offset if note_data[&"end_time"] > 0.0 else 0.0
+		note_node.position.x = note_data[&"track_index"] * tracks.track_H
+		
+		var distance: float = calculate_distance(music_time, note_data[&"time"])
+		note_node.position.y = line_y - distance
+		
+		if note_data[&"track_index"] == 1 or note_data[&"track_index"] == 2:
+			note_node.self_modulate = Color(0.3, 0.65, 1.0, 1.0)
+		else: 
+			note_node.self_modulate = Color.WHITE
+		
+		active_notes.append({
+			&"data": note_data,
+			&"node": note_node})
+		notes_data_index += 1
 			
-			note_node.type = note_data[&"type"]
-			note_node.scale.x = tracks.track_H
-			note_node.track = note_data[&"track_index"]
-			note_node.time = note_data[&"time"] + offset
-			note_node.end_time = note_data[&"end_time"] + offset if note_data[&"end_time"] > 0.0 else 0.0
-			note_node.position.x = note_data[&"track_index"] * tracks.track_H
-			
-			var distance: float = calculate_distance(music_time, note_data[&"time"])
-			note_node.position.y = line_y - distance
-			
-			if note_data[&"track_index"] == 1 or note_data[&"track_index"] == 2:
-				note_node.self_modulate = Color(0.3, 0.65, 1.0, 1.0)
-			else: 
-				note_node.self_modulate = Color.WHITE
-			
-			active_notes.append({
-				&"data": note_data,
-				&"node": note_node})
-			
-			notes_data_index += 1
-		else:
-			break
 
 
 ## 更新note位置
@@ -181,7 +186,6 @@ func calculate_distance(from_time: float, to_time: float) -> float:
 		total_distance += (segment_end_time - current_time) * speed * segment_sv
 		current_time = segment_end_time
 		timing_index += 1
-		
 	return total_distance
 
 
@@ -200,26 +204,29 @@ func calculate_lead_time(note_time: float) -> float:
 	while timing_index >= 0 and timing_points[timing_index][0] > note_time:
 		timing_index -= 1 #找到当前时间对应的timing point索引
 
-	while remaining_distance > 0: 
-		var segment_sv: float = 1.0 #绿线，读流速
-		var segment_start_time: float = 0.0 #时间段的起始点
+	while remaining_distance > 0:
+		if timing_index < 0:
+			# 已经没有更早的 timing point，用当前段速度一次性走完
+			current_time -= remaining_distance / (speed * 1.0)
+			remaining_distance = 0
+			break
 
-		if timing_index >= 0:
-			segment_sv = timing_points[timing_index][1]
-			segment_start_time = timing_points[timing_index][0]
+		var segment_sv := 1.0
+		var segment_start_time := 0.0
 
-		var segment_speed: float = speed * segment_sv #全局流速*时间段流速缩放
-		var max_time_in_segment: float = current_time - segment_start_time #这一段最多能走的时间
-		var distance_in_segment: float = max_time_in_segment * segment_speed #最多能走的距离
+		segment_sv = timing_points[timing_index][1]
+		segment_start_time = timing_points[timing_index][0]
 
-		if distance_in_segment >= remaining_distance: 
-			#这一变速段能走完，往前调生成时间
+		var segment_speed := speed * segment_sv
+		var max_time_in_segment := current_time - segment_start_time
+		var distance_in_segment := max_time_in_segment * segment_speed
+
+		if distance_in_segment >= remaining_distance:
 			current_time -= remaining_distance / segment_speed
 			remaining_distance = 0
-		else: 
-			#这一段不够，继续往前
+		else:
 			remaining_distance -= distance_in_segment
-			current_time = segment_start_time #调整为这一个timingpoint的开始时间，往前继续积分
+			current_time = segment_start_time
 			timing_index -= 1
 	return note_time - current_time
 
@@ -325,12 +332,13 @@ func conversion_type(x) -> int:
 		128: return 1
 		_: return 0
 
+
 func conversion_track(x) -> int:
 	x = int(x)
 	match key_quantity: 
 		4: return (x - 64) / 128
 		7: return (x - 35) / 73
-		_: return int((float(x) / 512.0) * key_quantity)
+		_: return int(float(x * key_quantity) / 512.0)
 
 
 func c_time(time) -> float:
