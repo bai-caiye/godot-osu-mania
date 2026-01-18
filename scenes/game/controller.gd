@@ -52,14 +52,15 @@ func _ready() -> void:
 	set_physics_process(false)
 	set_process_input(false)
 	set_process(false)
+	_prewarm_pool()
+	
 	if chart_path.is_empty(): return
 	
 	load_beatmap(chart_path)
 	line_y = tracks.line_Y
 	lead_in_timer.start()
-	_prewarm_pool()
-	set_process(true)
 	
+	set_process(true)
 	await lead_in_timer.timeout
 	music.play()
 	
@@ -71,6 +72,7 @@ func restart(_chart_path :String) -> void:
 	
 	music_time = 0.0
 	notes_data_index = 0
+	#回收全部note
 	for i in active_notes.size():
 		pool_release(active_notes[i][&"node"])
 	active_notes.clear()
@@ -95,18 +97,17 @@ func load_beatmap(_chart_path :String) -> Error:
 	bg.texture = beatmap.image
 	music.stream  = beatmap.music
 	chart = beatmap.chart
-	node2d_notes.global_position = Vector2(tracks.position.x - tracks.track_H * 2, 0.0)
-	progress_bar.length = music.stream.get_length()
-	
 	beatmap_data = SongLoader.load_beatmap_data(chart)
 	if beatmap_data.is_empty(): printerr("谱面信息读取错误"); return ERR_UNAVAILABLE
+	
+	key_quantity = beatmap_data[&"CircleSize"]
+	tracks.key_quantity = key_quantity
+	node2d_notes.global_position = Vector2(tracks.position.x - tracks.track_H * 2, 0.0)
+	progress_bar.length = music.stream.get_length()
 	
 	load_timing_points(chart)
 	load_notes_data(chart)
 	note_quantity = notes_data.size()
-	key_quantity = beatmap_data[&"CircleSize"]
-	tracks.key_quantity = key_quantity
-	
 	precalculate_lead_times()
 	return OK
 
