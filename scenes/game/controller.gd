@@ -78,10 +78,8 @@ func restart(_chart_path :String) -> void:
 	active_notes.clear()
 	
 	if chart_path != _chart_path:
+		if load_beatmap(_chart_path) != OK: printerr("重开失败"); return
 		chart_path = _chart_path
-		notes_data.clear()
-		timing_points.clear()
-		if load_beatmap(chart_path) != OK: printerr("重开失败"); return
 		
 	lead_in_timer.start()
 	pause = false
@@ -94,11 +92,14 @@ func load_beatmap(_chart_path :String) -> Error:
 	var beatmap := SongLoader.load_beatmap(_chart_path)
 	if beatmap.chart.is_empty(): printerr("谱面读取错误"); return ERR_UNAVAILABLE
 	
+	var beatmap_temp_data = SongLoader.load_beatmap_data(beatmap.chart)
+	if beatmap_temp_data.is_empty(): printerr("谱面信息读取错误"); return ERR_UNAVAILABLE
+	
 	bg.texture = beatmap.image
-	music.stream  = beatmap.music
+	music.stream = beatmap.music
 	chart = beatmap.chart
-	beatmap_data = SongLoader.load_beatmap_data(chart)
-	if beatmap_data.is_empty(): printerr("谱面信息读取错误"); return ERR_UNAVAILABLE
+	beatmap_data = beatmap_temp_data.duplicate(true)
+	beatmap_temp_data = null
 	
 	key_quantity = beatmap_data[&"CircleSize"]
 	tracks.key_quantity = key_quantity
@@ -295,6 +296,7 @@ func _recycle_at(index: int) -> void:
 
 ## 加载音符数据
 func load_notes_data(_chart: PackedStringArray) -> void:
+	notes_data.clear()
 	var index: int = _chart.find("[HitObjects]") + 1
 	while index < _chart.size() - 1:
 		var line: String = _chart[index]
@@ -317,6 +319,7 @@ func load_notes_data(_chart: PackedStringArray) -> void:
 
 ## 加载timing_points
 func load_timing_points(_chart: PackedStringArray) -> void:
+	timing_points.clear()
 	var index: int = chart.find("[TimingPoints]") + 1
 	while index < _chart.size() and _chart[index] != "": 
 		if int(_chart[index].get_slice(",", 6)) == 0:

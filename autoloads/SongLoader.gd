@@ -46,17 +46,20 @@ func load_beatmap(chart_path :String) -> Beatmap:
 	var beatmap :Beatmap = Beatmap.new()
 	beatmap.chart = FileAccess.get_file_as_string(chart_path).split("\r\n")
 	
-	if beatmap.chart[0] != "osu file format v14": printerr("加载beatmap失败: 不支持该谱面版本"); return Beatmap.new()
+	if beatmap.chart[0] != "osu file format v14":
+		printerr("加载beatmap失败: 不支持该谱面版本"); return Beatmap.new()
+	elif beatmap.chart[9][-1] != "3":
+		printerr("加载beatmap失败: 不支持非mania模式"); return Beatmap.new()
 	
-	#查找谱面指定音频文件
-	var audio_path :String = song_path.path_join(beatmap.chart[beatmap.chart.find("[General]")+1].get_slice(": ",1))
-	match audio_path.get_extension():
-		"mp3": beatmap.music = load_audio(audio_path, &"mp3")
-		"ogg": beatmap.music = load_audio(audio_path, &"ogg")
+	beatmap.music = load_audio(
+		song_path +"/"+ beatmap.chart[beatmap.chart.find("[General]")+1].get_slice(": ",1))
 	
-	beatmap.image = load_image(
-		song_path.path_join(
-			beatmap.chart[beatmap.chart.find("[Events]")+2].get_slice(",",2).trim_prefix('"').trim_suffix('"')))
+	var img_regex :RegEx = RegEx.create_from_string(r'^\d+,\d+,"([^"]+)"')
+	for line in beatmap.chart:
+		if img_regex.search(line):
+			var img_name :String = img_regex.search(line).get_string(1)
+			beatmap.image = load_image(song_path.path_join(img_name))
+			break
 	
 	return beatmap
 
@@ -100,12 +103,12 @@ func load_image(path: String) -> ImageTexture:
 
 
 ## 加载音频文件返回流
-func load_audio(path: String, type: StringName = &"mp3") -> AudioStream:
+func load_audio(path: String) -> AudioStream:
 	if !FileAccess.file_exists(path): printerr("路径音频文件不存在"); return AudioStream.new()
 	var audio
-	match type:
-		&"mp3": audio = AudioStreamMP3.new()
-		&"wav": audio = AudioStreamWAV.new()
-		&"ogg": return AudioStreamOggVorbis.load_from_file(path)
+	match path.get_extension():
+		"mp3": audio = AudioStreamMP3.new()
+		"wav": audio = AudioStreamWAV.new()
+		"ogg": return AudioStreamOggVorbis.load_from_file(path)
 	audio.data = FileAccess.get_file_as_bytes(path)
 	return audio
