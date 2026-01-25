@@ -30,6 +30,7 @@ SongLoader="*res://autoloads/SongLoader.gd"
 
 [debug]
 
+gdscript/warnings/integer_division=0
 gdscript/run_on_separate_thread=false
 
 [display]

@@ -31,11 +31,13 @@ var active_notes: Array = []
 
 var chart: PackedStringArray  ## 谱面文本
 var beatmap_data: Dictionary  ## 谱面信息
-var timing_points: Array      ## 时间点数组
 var key_quantity: int         ## 有多少key
 var line_y: float = 850.0     ## 判定线的高度
 
-var speed_scale: float = 1.0  ## 变速(百分比%)
+var timing_points: Array      ## 时间点数组
+var current_timing_index: int = -1
+
+var slider_velocity: float = 1.0  ## 变速(百分比%)
 var music_time: float = 0.0   ## 当前音乐播放时间
 
 
@@ -72,6 +74,7 @@ func restart(_chart_path :String) -> void:
 	
 	music_time = 0.0
 	notes_data_index = 0
+	current_timing_index = -1
 	#回收全部note
 	for i in active_notes.size():
 		pool_release(active_notes[i][&"node"])
@@ -115,7 +118,7 @@ func load_beatmap(_chart_path :String) -> Error:
 ## 主要循环
 func _process(_delta: float) -> void:
 	music_time = music.get_playback_position() - lead_in_timer.time_left
-	speed_scale = get_speed_scale(music_time)
+	slider_velocity = get_slider_velocity()
 	
 	spawn_notes()
 	update_active_notes()
@@ -166,13 +169,7 @@ func calculate_distance(from_time: float, to_time: float) -> float:
 	
 	var total_distance: float = 0.0
 	var current_time: float = from_time
-	
-	var timing_index: int = -1
-	for i in range(timing_points.size()):
-		if timing_points[i][0] <= from_time: 
-			timing_index = i
-		else: 
-			break
+	var timing_index: int = current_timing_index
 	
 	#分段计算距离 也是定积分
 	while current_time < to_time:
@@ -233,15 +230,23 @@ func calculate_lead_time(note_time: float) -> float:
 	return note_time - current_time
 
 
-## 获取speed_scale
-func get_speed_scale(time: float) -> float:
-	var _speed_scale: float = 1.0
-	for timing in timing_points:
-		if time > timing[0]: 
-			_speed_scale = timing[1]
-		else: 
-			break
-	return _speed_scale
+## 获取当前时间段的SV
+func get_slider_velocity() -> float:
+	if timing_points.is_empty():
+		current_timing_index = -1
+		return 1.0
+	
+	# 向前查找（时间递增时）
+	while current_timing_index + 1 < timing_points.size() and music_time >= timing_points[current_timing_index + 1][0]:
+		current_timing_index += 1
+	
+	# 向后查找（时间回退时，如重开或跳转）
+	while current_timing_index >= 0 and music_time < timing_points[current_timing_index][0]:
+		current_timing_index -= 1
+	
+	if current_timing_index < 0:
+		return 1.0
+	return timing_points[current_timing_index][1]
 
 
 ## 给对象池添加御用对象
