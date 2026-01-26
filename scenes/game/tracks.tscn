@@ -10,6 +10,7 @@ anchor_right = 0.5
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 script = ExtResource("1_q8g2o")
 key_quantity = 4
 track_H = 70.0
@@ -33,24 +34,28 @@ alignment = 1
 modulate = Color(1, 1, 1, 0.9)
 custom_minimum_size = Vector2(70, 0)
 layout_mode = 2
+mouse_filter = 2
 color = Color(0, 0, 0, 0.745098)
 
 [node name="track2" type="ColorRect" parent="tracks" unique_id=1081828980]
 modulate = Color(1, 1, 1, 0.9)
 custom_minimum_size = Vector2(70, 0)
 layout_mode = 2
+mouse_filter = 2
 color = Color(0, 0, 0, 0.745098)
 
 [node name="track3" type="ColorRect" parent="tracks" unique_id=1923319582]
 modulate = Color(1, 1, 1, 0.9)
 custom_minimum_size = Vector2(70, 0)
 layout_mode = 2
+mouse_filter = 2
 color = Color(0, 0, 0, 0.745098)
 
 [node name="track4" type="ColorRect" parent="tracks" unique_id=1448035113]
 modulate = Color(1, 1, 1, 0.9)
 custom_minimum_size = Vector2(70, 0)
 layout_mode = 2
+mouse_filter = 2
 color = Color(0, 0, 0, 0.745098)
 
 [node name="track5" type="ColorRect" parent="tracks" unique_id=394240372]
@@ -58,6 +63,7 @@ visible = false
 modulate = Color(1, 1, 1, 0.9)
 custom_minimum_size = Vector2(70, 0)
 layout_mode = 2
+mouse_filter = 2
 color = Color(0, 0, 0, 0.745098)
 
 [node name="track6" type="ColorRect" parent="tracks" unique_id=980386697]
@@ -65,6 +71,7 @@ visible = false
 modulate = Color(1, 1, 1, 0.9)
 custom_minimum_size = Vector2(70, 0)
 layout_mode = 2
+mouse_filter = 2
 color = Color(0, 0, 0, 0.745098)
 
 [node name="track7" type="ColorRect" parent="tracks" unique_id=1910283974]
@@ -72,6 +79,7 @@ visible = false
 modulate = Color(1, 1, 1, 0.9)
 custom_minimum_size = Vector2(70, 0)
 layout_mode = 2
+mouse_filter = 2
 color = Color(0, 0, 0, 0.745098)
 
 [node name="track8" type="ColorRect" parent="tracks" unique_id=2029904727]
@@ -79,6 +87,7 @@ visible = false
 modulate = Color(1, 1, 1, 0.9)
 custom_minimum_size = Vector2(70, 0)
 layout_mode = 2
+mouse_filter = 2
 color = Color(0, 0, 0, 0.745098)
 
 [node name="track9" type="ColorRect" parent="tracks" unique_id=1257928828]
@@ -86,6 +95,7 @@ visible = false
 modulate = Color(1, 1, 1, 0.9)
 custom_minimum_size = Vector2(70, 0)
 layout_mode = 2
+mouse_filter = 2
 color = Color(0, 0, 0, 0.745098)
 
 [node name="track10" type="ColorRect" parent="tracks" unique_id=886310994]
@@ -93,6 +103,7 @@ visible = false
 modulate = Color(1, 1, 1, 0.9)
 custom_minimum_size = Vector2(70, 0)
 layout_mode = 2
+mouse_filter = 2
 color = Color(0, 0, 0, 0.745098)
 
 [node name="Line" type="ColorRect" parent="." unique_id=1745143330]
@@ -109,3 +120,4 @@ offset_right = 120.0
 offset_bottom = 313.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2

@@ -6,6 +6,7 @@
 
 [node name="Controller" type="Control" unique_id=1751518332 node_paths=PackedStringArray("bg", "music", "tracks", "node2d_notes", "lead_in_timer", "progress_bar")]
 process_mode = 3
+process_priority = 1
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -43,7 +44,6 @@ layout_mode = 1
 
 [node name="Notes" type="MultiMeshInstance2D" parent="Tracks" unique_id=1048333321]
 process_mode = 1
-process_priority = 1
 z_index = 1
 
 [node name="Music" type="AudioStreamPlayer" parent="." unique_id=1590063657]
