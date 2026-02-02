@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://criwi1eyinjkn"]
+
+[ext_resource type="Script" uid="uid://dnf88humvbdiq" path="res://scenes/game/note/tap_note.gd" id="1_ionjl"]
+[ext_resource type="Texture2D" uid="uid://cdb4c6jr0tu8t" path="res://assets/image/hold_note.png" id="1_rvd5e"]
+
+[node name="TapNote" type="Sprite2D" unique_id=169029747]
+texture = ExtResource("1_rvd5e")
+offset = Vector2(0, -17.5)
+script = ExtResource("1_ionjl")

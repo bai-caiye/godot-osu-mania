@@ -27,6 +27,7 @@ buses/default_bus_layout="uid://bh7rw85vwjy0g"
 [autoload]
 
 SongLoader="*res://autoloads/SongLoader.gd"
+PoolManager="*uid://bt3nqpeg5qfn6"
 
 [debug]
 
@@ -37,6 +38,7 @@ gdscript/run_on_separate_thread=false
 
 window/size/viewport_width=1920
 window/size/viewport_height=1080
+window/size/mode=4
 window/size/resizable=false
 window/size/sharp_corners=true
 window/size/maximize_disabled=true

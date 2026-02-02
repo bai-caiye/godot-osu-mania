@@ -9,20 +9,18 @@ extends Control
 @export var bg: TextureRect  ## 背景图片
 @export var music: AudioStreamPlayer
 @export var tracks: Tracks
-@export var node2d_notes: Node2D
 @export var lead_in_timer: Timer
 @export var progress_bar: ColorRect
+@export var tap_pool: ObjectPool
+@export var hold_pool: ObjectPool
 
-const NOTE := preload("res://scenes/game/note.tscn")
+const NOTE := preload("res://scenes/game/note/tap_note.tscn")
 
 var pause :bool = false:
 	set(v):
 		pause = v
 		get_tree().paused = pause
 		set_process(!pause)
-
-var _pool: Array = []
-var _pool_initial_size: int = 20
 
 var note_quantity: int        ## 音符总数
 var notes_data: Array = [] 
@@ -54,8 +52,6 @@ func _ready() -> void:
 	set_physics_process(false)
 	set_process_input(false)
 	set_process(false)
-	_prewarm_pool()
-	
 	if chart_path.is_empty(): return
 	
 	load_beatmap(chart_path)
@@ -77,15 +73,15 @@ func restart(_chart_path :String) -> void:
 	current_timing_index = -1
 	#回收全部note
 	for i in active_notes.size():
-		pool_release(active_notes[i][&"node"])
+		tap_pool.pool_release(active_notes[i][&"node"])
 	active_notes.clear()
 	
 	if chart_path != _chart_path:
 		if load_beatmap(_chart_path) != OK: printerr("重开失败"); return
 		chart_path = _chart_path
-		
-	lead_in_timer.start()
+	
 	pause = false
+	lead_in_timer.start()
 	
 	await lead_in_timer.timeout
 	music.play()
@@ -106,7 +102,9 @@ func load_beatmap(_chart_path :String) -> Error:
 	
 	key_quantity = beatmap_data[&"CircleSize"]
 	tracks.key_quantity = key_quantity
-	node2d_notes.global_position = Vector2(tracks.position.x - tracks.track_H * 2, 0.0)
+	var pos :Vector2 = Vector2(tracks.position.x - tracks.track_H * 2, 0.0)
+	tap_pool.global_position = pos
+	hold_pool.global_position = pos
 	progress_bar.length = music.stream.get_length()
 	
 	load_timing_points(chart)
@@ -116,8 +114,10 @@ func load_beatmap(_chart_path :String) -> Error:
 	return OK
 
 ## 主要循环
-func _process(_delta: float) -> void:
-	music_time = music.get_playback_position() - lead_in_timer.time_left
+func _process(delta: float) -> void:
+	if music.playing: music_time += delta
+	if music.get_playback_position() - 0.03 > music_time:
+		music_time = music.get_playback_position()
 	slider_velocity = get_slider_velocity()
 	
 	spawn_notes()
@@ -132,21 +132,21 @@ func spawn_notes() -> void:
 		## 如果不符合条件直接退出否则继续执行
 		if !note_data[&"time"] - music_time <= note_data[&"lead_time"]: break
 		
-		var note_node: Node2D = pool_acquire()
-		note_node.type = note_data[&"type"]
-		note_node.scale.x = tracks.track_H
+		var note_node: Node2D = acquire_note(note_data[&"type"])
+		note_node.scale.x = tracks.track_H / 100.0
 		note_node.track = note_data[&"track_index"]
 		note_node.time = note_data[&"time"] + offset
-		note_node.end_time = note_data[&"end_time"] + offset if note_data[&"end_time"] > 0.0 else 0.0
-		note_node.position.x = note_data[&"track_index"] * tracks.track_H
+		note_node.position.x = (note_node.track + 0.5) * tracks.track_H
+		note_node.position.y = line_y - calculate_distance(music_time, note_node.time)
 		
-		var distance: float = calculate_distance(music_time, note_data[&"time"])
-		note_node.position.y = line_y - distance
+		if note_node.type == &"hold":
+			note_node.end_time = note_data[&"end_time"] + offset
+			
 		
-		if note_data[&"track_index"] == 1 or note_data[&"track_index"] == 2:
-			note_node.self_modulate = Color(0.3, 0.65, 1.0, 1.0)
+		if note_data[&"track_index"] == 1 or note_node.track == 2:
+			note_node.modulate = Color(0.3, 0.65, 1.0, 1.0)
 		else: 
-			note_node.self_modulate = Color.WHITE
+			note_node.modulate = Color.WHITE
 		
 		active_notes.append({
 			&"data": note_data,
@@ -157,11 +157,13 @@ func spawn_notes() -> void:
 
 ## 更新note位置
 func update_active_notes() -> void:
-	for note_info in active_notes: 
+	for note_info in active_notes:
 		var note_node: Node2D = note_info[&"node"]
 		var note_data: Dictionary = note_info[&"data"]
 		note_node.position.y = line_y - calculate_distance(music_time, note_data[&"time"])
-
+		#if note_node.type == &"hold":
+			#note_node.body.scale.y = (note_node.position.y - note_node.end.position.y) / 100
+			
 
 ## from_time->to_time之间音符移动的距离
 func calculate_distance(from_time: float, to_time: float) -> float:
@@ -198,28 +200,28 @@ func precalculate_lead_times() -> void:
 func calculate_lead_time(note_time: float) -> float:
 	var remaining_distance: float = line_y
 	var current_time: float = note_time
-
+	
 	var timing_index: int = timing_points.size() - 1
 	while timing_index >= 0 and timing_points[timing_index][0] > note_time:
 		timing_index -= 1 #找到当前时间对应的timing point索引
-
+	
 	while remaining_distance > 0:
 		if timing_index < 0:
 			# 已经没有更早的 timing point，用当前段速度一次性走完
 			current_time -= remaining_distance / (speed * 1.0)
 			remaining_distance = 0
 			break
-
+	
 		var segment_sv := 1.0
 		var segment_start_time := 0.0
-
+	
 		segment_sv = timing_points[timing_index][1]
 		segment_start_time = timing_points[timing_index][0]
-
+	
 		var segment_speed := speed * segment_sv
 		var max_time_in_segment := current_time - segment_start_time
 		var distance_in_segment := max_time_in_segment * segment_speed
-
+	
 		if distance_in_segment >= remaining_distance:
 			current_time -= remaining_distance / segment_speed
 			remaining_distance = 0
@@ -236,40 +238,12 @@ func get_slider_velocity() -> float:
 		current_timing_index = -1
 		return 1.0
 	
-	# 向前查找（时间递增时）
 	while current_timing_index + 1 < timing_points.size() and music_time >= timing_points[current_timing_index + 1][0]:
 		current_timing_index += 1
-	
-	# 向后查找（时间回退时，如重开或跳转）
-	while current_timing_index >= 0 and music_time < timing_points[current_timing_index][0]:
-		current_timing_index -= 1
 	
 	if current_timing_index < 0:
 		return 1.0
 	return timing_points[current_timing_index][1]
-
-
-## 给对象池添加御用对象
-func _prewarm_pool() -> void:
-	for i in _pool_initial_size:
-		var note: Node2D = NOTE.instantiate()
-		note.visible = false
-		note.set_process(false)
-		node2d_notes.add_child(note)
-		_pool.append(note)
-
-
-## 从对象池取一个对象
-func pool_acquire() -> Node2D:
-	var note: Node2D
-	if _pool.size() > 0:
-		note = _pool.pop_back()
-	else:
-		note = NOTE.instantiate()
-		node2d_notes.add_child(note)
-		#print("no enough notes, instantiating prefab")
-	note.visible = true
-	return note
 
 
 ## 批量回收对象
@@ -278,26 +252,15 @@ func recycle_expired_notes() -> void:
 	while i < active_notes.size():
 		var note_data: Dictionary = active_notes[i][&"data"]
 		
-		if note_data[&"time"] - music_time < 0:
-			var note_node: Node2D = active_notes[i][&"node"]
-			pool_release(note_node)
+		if note_data[&"type"] == &"tap" and note_data[&"time"] - music_time < 0:
+			recycle_note(active_notes[i][&"node"])
+			active_notes.remove_at(i)
+		elif note_data[&"type"] == &"hold" and note_data[&"end_time"] - music_time < 0:
+			recycle_note(active_notes[i][&"node"])
 			active_notes.remove_at(i)
 		else:
 			i += 1
-
-## 回收对象
-func pool_release(note: Node2D) -> void:
-	note.visible = false
-	note.position = Vector2.ZERO
-	note.self_modulate = Color.WHITE
-	_pool.append(note)
-
-
-## 回收第 index 个对象
-func _recycle_at(index: int) -> void:
-	pool_release(active_notes[index][&"node"])
-	active_notes.remove_at(index)
-
+			
 
 ## 加载音符数据
 func load_notes_data(_chart: PackedStringArray) -> void:
@@ -334,12 +297,23 @@ func load_timing_points(_chart: PackedStringArray) -> void:
 		index += 1
 
 
-func conversion_type(x) -> int:
+func acquire_note(type :StringName) -> Node2D:
+	match type:
+		&"tap": return tap_pool.acquire_objec()
+		&"hold": return hold_pool.acquire_objec()
+	return null
+
+
+func recycle_note(note :Node2D) -> void:
+	match note.type:
+		&"tap": tap_pool.recycle_object(note)
+		&"hold": hold_pool.recycle_object(note)
+
+
+func conversion_type(x) -> StringName:
 	match int(x):
-		1: return 0
-		5: return 0
-		128: return 1
-		_: return 0
+		128: return &"hold"
+		_: return &"tap"
 
 
 func conversion_track(x) -> int:
