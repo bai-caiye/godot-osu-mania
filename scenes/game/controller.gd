@@ -116,6 +116,7 @@ func load_beatmap(_chart_path :String) -> Error:
 ## 主要循环
 func _process(delta: float) -> void:
 	if music.playing: music_time += delta
+	## 如果偏差过大就修正
 	if music.get_playback_position() - 0.03 > music_time:
 		music_time = music.get_playback_position()
 	slider_velocity = get_slider_velocity()
@@ -137,12 +138,13 @@ func spawn_notes() -> void:
 		note_node.track = note_data[&"track_index"]
 		note_node.time = note_data[&"time"] + offset
 		note_node.position.x = (note_node.track + 0.5) * tracks.track_H
-		note_node.position.y = line_y - calculate_distance(music_time, note_node.time)
+		note_node.global_position.y = line_y - calculate_distance(music_time, note_node.time)
 		
 		if note_node.type == &"hold":
 			note_node.end_time = note_data[&"end_time"] + offset
+			note_node.end.global_position.y = line_y - calculate_distance(music_time, note_data[&"end_time"])
+			note_node.body.scale.y = (note_node.global_position.y - note_node.end.global_position.y) / 100.0
 			
-		
 		if note_data[&"track_index"] == 1 or note_node.track == 2:
 			note_node.modulate = Color(0.3, 0.65, 1.0, 1.0)
 		else: 
@@ -160,9 +162,13 @@ func update_active_notes() -> void:
 	for note_info in active_notes:
 		var note_node: Node2D = note_info[&"node"]
 		var note_data: Dictionary = note_info[&"data"]
-		note_node.position.y = line_y - calculate_distance(music_time, note_data[&"time"])
-		#if note_node.type == &"hold":
-			#note_node.body.scale.y = (note_node.position.y - note_node.end.position.y) / 100
+		
+		var head_y := line_y - calculate_distance(music_time, note_data[&"time"])
+		note_node.global_position.y = head_y
+		
+		if note_node.type == &"hold":
+			note_node.end.global_position.y = line_y - calculate_distance(music_time, note_data[&"end_time"])
+			note_node.body.scale.y = (note_node.global_position.y - note_node.end.global_position.y) / 100.0
 			
 
 ## from_time->to_time之间音符移动的距离

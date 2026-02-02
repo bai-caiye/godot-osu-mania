@@ -67,6 +67,7 @@ process_mode = 1
 
 [node name="Lead-inTimer" type="Timer" parent="." unique_id=1496072064]
 process_mode = 1
+wait_time = 1.5999999999999999
 one_shot = true
 
 [node name="ProgressBar" type="ColorRect" parent="." unique_id=479438872 node_paths=PackedStringArray("music")]
