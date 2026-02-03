@@ -14,6 +14,7 @@ config/name="osu!mania"
 config/tags=PackedStringArray("rhythm")
 run/main_scene="uid://c8pwgnjv1j53r"
 config/features=PackedStringArray("4.6", "Mobile")
+run/max_fps=120
 boot_splash/bg_color=Color(0, 0, 0, 1)
 boot_splash/show_image=false
 boot_splash/stretch_mode=0
@@ -23,6 +24,7 @@ config/icon="uid://5gluig4g31ns"
 [audio]
 
 buses/default_bus_layout="uid://bh7rw85vwjy0g"
+driver/output_latency=10
 
 [autoload]
 
@@ -44,6 +46,7 @@ window/size/maximize_disabled=true
 window/size/window_width_override=1152
 window/size/window_height_override=648
 window/stretch/mode="viewport"
+window/vsync/vsync_mode=0
 
 [input_devices]
 
@@ -53,6 +56,7 @@ sensors/stretch/aspect="keep"
 [physics]
 
 2d/run_on_separate_thread=true
+common/enable_object_picking=false
 
 [rendering]
 

@@ -3,7 +3,7 @@ extends Control
 @export_group("Option")
 @export_global_file("*.osu") var chart_path: String
 @export var speed: float = 1500.0  ## 整体速度
-@export var offset: float = 0.0    ## 整体偏移
+@export var global_offset: float = 0.0    ## 整体偏移
 
 @export_group("Node")
 @export var bg: TextureRect  ## 背景图片
@@ -55,25 +55,27 @@ func _unhandled_key_input(event: InputEvent) -> void:
 func _ready() -> void:
 	set_physics_process(false)
 	set_process_input(false)
-	set_process(false)
+	pause = true
 	line_y = tracks.line_Y
 	
 	if chart_path.is_empty(): return
 	load_beatmap(chart_path)
-	music_time = 0.0
+	start()
+
+func start() -> void:
+	music_time = 0.0 - lead_in_timer.wait_time
 	lead_in_timer.start()
+	pause = false
 	
-	set_process(true)
 	await lead_in_timer.timeout
 	music.play()
-	
+	music_time = music.get_playback_position() + AudioServer.get_time_since_last_mix() - AudioServer.get_output_latency()
 
 ## 重开
 func restart(_chart_path :String) -> void:
-	set_process(false)
+	pause = true
 	if music.stream: music.stop()
 	
-	music_time = 0.0
 	notes_data_index = 0
 	current_timing_index = -1
 	#回收全部note
@@ -84,68 +86,41 @@ func restart(_chart_path :String) -> void:
 	if chart_path != _chart_path:
 		if load_beatmap(_chart_path) != OK: printerr("重开失败"); return
 		chart_path = _chart_path
-	
-	pause = false
-	music_time = 0.0
-	lead_in_timer.start()
-	
-	await lead_in_timer.timeout
-	music.play()
+	start()
 
-
-func load_beatmap(_chart_path :String) -> Error:
-	var beatmap := SongLoader.load_beatmap(_chart_path)
-	if beatmap.chart.is_empty(): printerr("谱面读取错误"); return ERR_UNAVAILABLE
-	
-	var beatmap_temp_data = SongLoader.load_beatmap_data(beatmap.chart)
-	if beatmap_temp_data.is_empty(): printerr("谱面信息读取错误"); return ERR_UNAVAILABLE
-	
-	bg.texture = beatmap.image
-	music.stream = beatmap.music
-	chart = beatmap.chart
-	beatmap_data = beatmap_temp_data.duplicate(true)
-	beatmap_temp_data = null
-	
-	key_quantity = beatmap_data[&"CircleSize"]
-	tracks.key_quantity = key_quantity
-	var pos :Vector2 = Vector2(tracks.position.x - tracks.track_H * key_quantity / 2, 0.0)
-	tap_pool.global_position = pos
-	hold_pool.global_position = pos
-	progress_bar.length = music.stream.get_length()
-	
-	load_timing_points(chart)
-	load_notes_data(chart)
-	note_quantity = notes_data.size()
-	precalculate_lead_times()
-	return OK
 
 ## 主要循环
 func _process(delta: float) -> void:
-	if music.playing: music_time += delta
-	## 如果偏差过大就修正
-	var music_pos :float= music.get_playback_position()
-	if music_pos - 0.026 >= music_time:
-		music_time = music_pos
+	music_time += delta
+	var music_dt :float = music.get_playback_position() + AudioServer.get_time_since_last_mix() - music_time
+	if music.playing and abs(music_dt) >= 0.015:
+		music_time += music_dt
+		
+	#if not music.playing:  B方案
+		#music_time += delta
+	#else:
+		#var raw_time := music.get_playback_position() + AudioServer.get_time_since_last_mix() - AudioServer.get_output_latency()
+		#music_time += (raw_time - music_time) * 0.3
 	slider_velocity = get_slider_velocity()
 	
-	spawn_notes()
-	update_active_notes()
+	spawn_notes(music_time)
+	update_active_notes(music_time)
 	recycle_expired_notes()
 
 
 ## 生成note
-func spawn_notes() -> void:
+func spawn_notes(time :float) -> void:
 	while notes_data_index < notes_data.size():
 		var note_data: Dictionary = notes_data[notes_data_index]
 		
-		if note_data[&"time"] - music_time > note_data[&"lead_time"]: break
+		if note_data[&"time"] - time > note_data[&"lead_time"]: break
 		
 		var note_node: Node2D = acquire_note(note_data[&"type"])
 		note_node.time = note_data[&"time"]
 		note_node.track = note_data[&"track_index"]
 		note_node.scale.x = tracks.track_H / 100.0
 		note_node.position.x = (note_node.track + 0.5) * tracks.track_H
-		note_node.global_position.y = line_y - calculate_distance(music_time, note_node.time)
+		note_node.global_position.y = line_y - calculate_distance(time, note_node.time)
 		
 		if note_node.type == &"hold":
 			note_node.end_time = note_data[&"end_time"]
@@ -163,14 +138,14 @@ func spawn_notes() -> void:
 
 
 ## 更新note位置
-func update_active_notes() -> void:
+func update_active_notes(time :float) -> void:
 	for note_info in active_notes:
 		var note_node: Node2D = note_info[&"node"]
 		var note_data: Dictionary = note_info[&"data"]
-		note_node.global_position.y = line_y - calculate_distance(music_time, note_data[&"time"])
+		note_node.global_position.y = line_y - calculate_distance(time, note_data[&"time"])
 		
 		if note_node.type == &"hold":
-			note_node.end.global_position.y = line_y - calculate_distance(music_time, note_data[&"end_time"])
+			note_node.end.global_position.y = line_y - calculate_distance(time, note_data[&"end_time"])
 			note_node.body.scale.y = (note_node.global_position.y - note_node.end.global_position.y) / 100.0
 			
 
@@ -255,42 +230,32 @@ func get_slider_velocity() -> float:
 	return timing_points[current_timing_index][1]
 
 
-## 回收对象
-func recycle_expired_notes() -> void:
-	for i in range(active_notes.size() - 1, -1, -1):
-		var note_data: Dictionary = active_notes[i][&"data"]
-		var expired: bool = false
-		
-		match note_data[&"type"]:
-			&"tap": expired = note_data[&"time"] < music_time
-			&"hold": expired = note_data[&"end_time"] < music_time
-		
-		if expired:
-			recycle_note(active_notes[i][&"node"])
-			active_notes.remove_at(i)
-			
-
-## 加载音符数据
-func load_notes_data(_chart: PackedStringArray) -> void:
-	notes_data.clear()
-	var index: int = _chart.find("[HitObjects]") + 1
-	while index < _chart.size() - 1:
-		var line: String = _chart[index]
-		if line.is_empty():
-			index += 1
-			continue
-			
-		var note_data :Dictionary = {
-			&"type": conversion_type(line.get_slice(",", 3)),
-			&"time": c_time(line.get_slice(",", 2)) + offset,
-			&"end_time": c_time(line.get_slice(",", 5).get_slice(":", 0)) + offset,
-			&"track_index": conversion_track(line.get_slice(",", 0)),
-			&"lead_time": 0.0
-		}
-		if note_data[&"end_time"] <= 0.0:
-			note_data[&"end_time"] = 0.0
-		notes_data.append(note_data)
-		index += 1
+## 加载谱面
+func load_beatmap(_chart_path :String) -> Error:
+	var beatmap := SongLoader.load_beatmap(_chart_path)
+	if beatmap.chart.is_empty(): printerr("谱面读取错误"); return ERR_UNAVAILABLE
+	
+	var beatmap_temp_data = SongLoader.load_beatmap_data(beatmap.chart)
+	if beatmap_temp_data.is_empty(): printerr("谱面信息读取错误"); return ERR_UNAVAILABLE
+	
+	bg.texture = beatmap.image
+	music.stream = beatmap.music
+	chart = beatmap.chart
+	beatmap_data = beatmap_temp_data.duplicate(true)
+	beatmap_temp_data = null
+	
+	key_quantity = beatmap_data[&"CircleSize"]
+	tracks.key_quantity = key_quantity
+	var pos :Vector2 = Vector2(tracks.position.x - tracks.track_H * key_quantity / 2, 0.0)
+	tap_pool.global_position = pos
+	hold_pool.global_position = pos
+	progress_bar.length = music.stream.get_length()
+	
+	load_timing_points(chart)
+	load_notes_data(chart)
+	note_quantity = notes_data.size()
+	precalculate_lead_times()
+	return OK
 
 
 ## 加载timing_points
@@ -306,17 +271,54 @@ func load_timing_points(_chart: PackedStringArray) -> void:
 		index += 1
 
 
+## 加载音符数据
+func load_notes_data(_chart: PackedStringArray) -> void:
+	notes_data.clear()
+	var index: int = _chart.find("[HitObjects]") + 1
+	while index < _chart.size() - 1:
+		var line: String = _chart[index]
+		if line.is_empty():
+			index += 1
+			continue
+			
+		var note_data :Dictionary = {
+			&"type": conversion_type(line.get_slice(",", 3)),
+			&"time": c_time(line.get_slice(",", 2)) + global_offset,
+			&"end_time": c_time(line.get_slice(",", 5).get_slice(":", 0)) + global_offset,
+			&"track_index": conversion_track(line.get_slice(",", 0)),
+			&"lead_time": 0.0
+		}
+		if note_data[&"end_time"] <= 0.0:
+			note_data[&"end_time"] = 0.0
+		notes_data.append(note_data)
+		index += 1
+
+## 取出note
 func acquire_note(type :StringName) -> Node2D:
 	match type:
 		&"tap": return tap_pool.acquire_object()
 		&"hold": return hold_pool.acquire_object()
 	return null
 
-
+## 放回note
 func recycle_note(note :Node2D) -> void:
 	match note.type:
 		&"tap": tap_pool.recycle_object(note)
 		&"hold": hold_pool.recycle_object(note)
+
+## 回收对象
+func recycle_expired_notes() -> void:
+	for i in range(active_notes.size() - 1, -1, -1):
+		var note_data: Dictionary = active_notes[i][&"data"]
+		var expired: bool = false
+		
+		match note_data[&"type"]:
+			&"tap": expired = note_data[&"time"] < music_time
+			&"hold": expired = note_data[&"end_time"] < music_time
+		
+		if expired:
+			recycle_note(active_notes[i][&"node"])
+			active_notes.remove_at(i)
 
 
 func conversion_type(x) -> StringName:

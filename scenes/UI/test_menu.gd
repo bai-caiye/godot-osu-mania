@@ -1,5 +1,6 @@
 extends Control
 
+@export var fps: Label
 @export var v_box: VBoxContainer
 const BUTTON := preload("res://scenes/UI/texture_button.tscn")
 
@@ -13,6 +14,10 @@ func _ready() -> void:
 	visible = false
 	update_song_list()
 	SongLoader.osz_loaded.connect(update_song_list)   # 新增：监听外部更新信号
+
+func _physics_process(_delta: float) -> void:
+	fps.text = "FPS%s" % [int(Engine.get_frames_per_second())]
+
 
 func update_song_list() -> void:
 	var current_paths: Dictionary = {}   # 本次扫描到的路径集合

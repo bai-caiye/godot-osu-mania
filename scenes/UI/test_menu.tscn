@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://b7rakq1sjx0r4" path="res://scenes/UI/test_menu.gd" id="1_3eeys"]
 
-[node name="TestMenu" type="Control" unique_id=179995671 node_paths=PackedStringArray("v_box")]
+[node name="TestMenu" type="Control" unique_id=179995671 node_paths=PackedStringArray("fps", "v_box")]
 process_mode = 3
 z_index = 10
 layout_mode = 3
@@ -13,6 +13,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
 script = ExtResource("1_3eeys")
+fps = NodePath("FPS")
 v_box = NodePath("ScrollContainer/VBoxContainer")
 
 [node name="Label" type="Label" parent="." unique_id=164987225]
@@ -21,6 +22,18 @@ offset_right = 40.0
 offset_bottom = 23.0
 theme_override_font_sizes/font_size = 35
 text = "导入osz请直接拖入窗口"
+metadata/_edit_lock_ = true
+
+[node name="FPS" type="Label" parent="." unique_id=264010737]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -49.0
+offset_right = 370.0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 35
+text = "FPS "
 metadata/_edit_lock_ = true
 
 [node name="ScrollContainer" type="ScrollContainer" parent="." unique_id=210816188]
