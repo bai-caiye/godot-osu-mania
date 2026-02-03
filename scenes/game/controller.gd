@@ -60,6 +60,7 @@ func _ready() -> void:
 	
 	if chart_path.is_empty(): return
 	load_beatmap(chart_path)
+	music_time = 0.0
 	lead_in_timer.start()
 	
 	set_process(true)
@@ -77,7 +78,7 @@ func restart(_chart_path :String) -> void:
 	current_timing_index = -1
 	#回收全部note
 	for i in active_notes.size():
-		tap_pool.pool_release(active_notes[i][&"node"])
+		recycle_note(active_notes[i][&"node"])
 	active_notes.clear()
 	
 	if chart_path != _chart_path:
@@ -85,6 +86,7 @@ func restart(_chart_path :String) -> void:
 		chart_path = _chart_path
 	
 	pause = false
+	music_time = 0.0
 	lead_in_timer.start()
 	
 	await lead_in_timer.timeout
