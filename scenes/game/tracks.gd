@@ -33,7 +33,9 @@ class_name Tracks
 @export var tracks :Array[ColorRect]
 @export var line: ColorRect
 
+
 func set_line() -> void:
 	if !line: return
 	line.global_position.y = line_Y
-	line.custom_minimum_size.x = key_quantity * track_H
+	line.scale.x = key_quantity * track_H / 280.0
+	

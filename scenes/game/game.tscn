@@ -18,7 +18,6 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("2_33cqm")
-chart_path = "C:/Users/BaiCaiye/AppData/Roaming/Godot/app_userdata/osu!mania/songs/void (Mournfinale) feat/void (Mournfinale) feat. Hoshikuma Minami - Testify (Akasha-) [Future  Alleyne's Insane].osu"
 speed = 1500.0
 bg = NodePath("BG")
 music = NodePath("Music")
@@ -47,6 +46,7 @@ metadata/_edit_lock_ = true
 process_mode = 4
 process_priority = 2
 layout_mode = 1
+line_Y = 1000.0
 
 [node name="TapNotePool" type="MultiMeshInstance2D" parent="Tracks" unique_id=608125722]
 process_mode = 1
@@ -67,7 +67,7 @@ process_mode = 1
 
 [node name="Lead-inTimer" type="Timer" parent="." unique_id=1496072064]
 process_mode = 1
-wait_time = 1.5999999999999999
+wait_time = 1.6
 one_shot = true
 
 [node name="ProgressBar" type="ColorRect" parent="." unique_id=479438872 node_paths=PackedStringArray("music")]

@@ -14,12 +14,11 @@ extends Control
 @export var tap_pool: ObjectPool
 @export var hold_pool: ObjectPool
 
-const NOTE := preload("res://scenes/game/note/tap_note.tscn")
 
 var pause :bool = false:
 	set(v):
 		pause = v
-		get_tree().paused = pause
+		music.stream_paused = pause
 		set_process(!pause)
 
 var note_quantity: int        ## 音符总数
@@ -30,7 +29,7 @@ var active_notes: Array = []
 var chart: PackedStringArray  ## 谱面文本
 var beatmap_data: Dictionary  ## 谱面信息
 var key_quantity: int         ## 有多少key
-var line_y: float = 850.0     ## 判定线的高度
+var line_y: float             ## 判定线的高度
 
 var timing_points: Array      ## 时间点数组
 var current_timing_index: int = -1
@@ -38,7 +37,7 @@ var current_timing_index: int = -1
 var slider_velocity: float = 1.0  ## 变速(百分比%)
 var music_time: float = 0.0   ## 当前音乐播放时间
 
-
+var full_screen :bool =false
 func _unhandled_key_input(event: InputEvent) -> void:
 	if event.pressed and !event.is_echo():
 		match event.keycode:
@@ -46,16 +45,21 @@ func _unhandled_key_input(event: InputEvent) -> void:
 				restart(chart_path)
 			KEY_ESCAPE:
 				pause = !pause
+			KEY_F11:
+				full_screen = !full_screen
+				DisplayServer.window_set_mode(
+				DisplayServer.WINDOW_MODE_FULLSCREEN if full_screen else DisplayServer.WINDOW_MODE_WINDOWED)
+				DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, full_screen)
 
 ## 初始化
 func _ready() -> void:
 	set_physics_process(false)
 	set_process_input(false)
 	set_process(false)
-	if chart_path.is_empty(): return
-	
-	load_beatmap(chart_path)
 	line_y = tracks.line_Y
+	
+	if chart_path.is_empty(): return
+	load_beatmap(chart_path)
 	lead_in_timer.start()
 	
 	set_process(true)
@@ -117,7 +121,7 @@ func load_beatmap(_chart_path :String) -> Error:
 func _process(delta: float) -> void:
 	if music.playing: music_time += delta
 	## 如果偏差过大就修正
-	if music.get_playback_position() - 0.03 > music_time:
+	if music.get_playback_position() - 0.03 >= music_time:
 		music_time = music.get_playback_position()
 	slider_velocity = get_slider_velocity()
 	
@@ -162,9 +166,7 @@ func update_active_notes() -> void:
 	for note_info in active_notes:
 		var note_node: Node2D = note_info[&"node"]
 		var note_data: Dictionary = note_info[&"data"]
-		
-		var head_y := line_y - calculate_distance(music_time, note_data[&"time"])
-		note_node.global_position.y = head_y
+		note_node.global_position.y = line_y - calculate_distance(music_time, note_data[&"time"])
 		
 		if note_node.type == &"hold":
 			note_node.end.global_position.y = line_y - calculate_distance(music_time, note_data[&"end_time"])
@@ -296,10 +298,12 @@ func load_timing_points(_chart: PackedStringArray) -> void:
 	timing_points.clear()
 	var index: int = chart.find("[TimingPoints]") + 1
 	while index < _chart.size() and _chart[index] != "": 
-		if int(_chart[index].get_slice(",", 6)) == 0:
+		var uninheritedint :int = int(_chart[index].get_slice(",", 6))
+		if uninheritedint == 0:
 			timing_points.append([
 			c_time(_chart[index].get_slice(",", 0)),
 			-100.0 / float(_chart[index].get_slice(",", 1))])
+
 		index += 1
 
 
