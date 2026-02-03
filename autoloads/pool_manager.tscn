@@ -1,6 +1,0 @@
-[gd_scene format=3 uid="uid://bt3nqpeg5qfn6"]
-
-[ext_resource type="Script" uid="uid://1q2lgt5iajjy" path="res://autoloads/PoolManager.gd" id="1_eo4pr"]
-
-[node name="PoolManager" type="Node" unique_id=15099644]
-script = ExtResource("1_eo4pr")

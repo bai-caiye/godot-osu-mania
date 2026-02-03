@@ -2,7 +2,7 @@ extends Control
 ##加载音符控制音符移动的脚本
 @export_group("Option")
 @export_global_file("*.osu") var chart_path: String
-@export var speed: float = 1000.0  ## 整体速度
+@export var speed: float = 1500.0  ## 整体速度
 @export var offset: float = 0.0    ## 整体偏移
 
 @export_group("Node")
@@ -108,7 +108,7 @@ func load_beatmap(_chart_path :String) -> Error:
 	
 	key_quantity = beatmap_data[&"CircleSize"]
 	tracks.key_quantity = key_quantity
-	var pos :Vector2 = Vector2(tracks.position.x - tracks.track_H * 2, 0.0)
+	var pos :Vector2 = Vector2(tracks.position.x - tracks.track_H * key_quantity / 2, 0.0)
 	tap_pool.global_position = pos
 	hold_pool.global_position = pos
 	progress_bar.length = music.stream.get_length()
@@ -123,8 +123,9 @@ func load_beatmap(_chart_path :String) -> Error:
 func _process(delta: float) -> void:
 	if music.playing: music_time += delta
 	## 如果偏差过大就修正
-	if music.get_playback_position() - 0.026 >= music_time:
-		music_time = music.get_playback_position()
+	var music_pos :float= music.get_playback_position()
+	if music_pos - 0.026 >= music_time:
+		music_time = music_pos
 	slider_velocity = get_slider_velocity()
 	
 	spawn_notes()

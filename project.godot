@@ -27,7 +27,7 @@ buses/default_bus_layout="uid://bh7rw85vwjy0g"
 [autoload]
 
 SongLoader="*res://autoloads/SongLoader.gd"
-PoolManager="*uid://bt3nqpeg5qfn6"
+PoolManager="*uid://1q2lgt5iajjy"
 
 [debug]
 

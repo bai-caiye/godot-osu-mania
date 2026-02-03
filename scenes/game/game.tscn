@@ -18,7 +18,6 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("2_33cqm")
-speed = 1500.0
 bg = NodePath("BG")
 music = NodePath("Music")
 tracks = NodePath("Tracks")

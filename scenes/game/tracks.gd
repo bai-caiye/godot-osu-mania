@@ -6,7 +6,7 @@ class_name Tracks
 ##轨道数量
 @export var key_quantity :int:
 	set(v):
-		key_quantity = v
+		key_quantity = clamp(v, 0, 10)
 		for i in tracks.size():
 			if i < key_quantity: tracks[i].visible = true
 			else: tracks[i].visible = false
@@ -14,7 +14,7 @@ class_name Tracks
 ##轨道宽度
 @export var track_H :float:
 	set(v):
-		track_H = v
+		track_H = clamp(v, 10, 200)
 		for track in tracks:
 			track.custom_minimum_size.x = track_H
 		set_line()
@@ -27,7 +27,7 @@ class_name Tracks
 ##线的高度
 @export var line_Y :float:
 	set(v):
-		line_Y = v
+		line_Y = clamp(v, 0, 1080)
 		set_line()
 @export_group("Node")
 @export var tracks :Array[ColorRect]
