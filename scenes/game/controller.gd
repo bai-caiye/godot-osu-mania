@@ -121,7 +121,7 @@ func load_beatmap(_chart_path :String) -> Error:
 func _process(delta: float) -> void:
 	if music.playing: music_time += delta
 	## 如果偏差过大就修正
-	if music.get_playback_position() - 0.03 >= music_time:
+	if music.get_playback_position() - 0.026 >= music_time:
 		music_time = music.get_playback_position()
 	slider_velocity = get_slider_velocity()
 	
@@ -134,22 +134,20 @@ func _process(delta: float) -> void:
 func spawn_notes() -> void:
 	while notes_data_index < notes_data.size():
 		var note_data: Dictionary = notes_data[notes_data_index]
-		## 如果不符合条件直接退出否则继续执行
-		if !note_data[&"time"] - music_time <= note_data[&"lead_time"]: break
+		
+		if note_data[&"time"] - music_time > note_data[&"lead_time"]: break
 		
 		var note_node: Node2D = acquire_note(note_data[&"type"])
-		note_node.scale.x = tracks.track_H / 100.0
+		note_node.time = note_data[&"time"]
 		note_node.track = note_data[&"track_index"]
-		note_node.time = note_data[&"time"] + offset
+		note_node.scale.x = tracks.track_H / 100.0
 		note_node.position.x = (note_node.track + 0.5) * tracks.track_H
 		note_node.global_position.y = line_y - calculate_distance(music_time, note_node.time)
 		
 		if note_node.type == &"hold":
-			note_node.end_time = note_data[&"end_time"] + offset
-			note_node.end.global_position.y = line_y - calculate_distance(music_time, note_data[&"end_time"])
-			note_node.body.scale.y = (note_node.global_position.y - note_node.end.global_position.y) / 100.0
+			note_node.end_time = note_data[&"end_time"]
 			
-		if note_data[&"track_index"] == 1 or note_node.track == 2:
+		if note_node.track == 1 or note_node.track == 2:
 			note_node.modulate = Color(0.3, 0.65, 1.0, 1.0)
 		else: 
 			note_node.modulate = Color.WHITE
@@ -254,20 +252,19 @@ func get_slider_velocity() -> float:
 	return timing_points[current_timing_index][1]
 
 
-## 批量回收对象
+## 回收对象
 func recycle_expired_notes() -> void:
-	var i: int = 0
-	while i < active_notes.size():
+	for i in range(active_notes.size() - 1, -1, -1):
 		var note_data: Dictionary = active_notes[i][&"data"]
+		var expired: bool = false
 		
-		if note_data[&"type"] == &"tap" and note_data[&"time"] - music_time < 0:
+		match note_data[&"type"]:
+			&"tap": expired = note_data[&"time"] < music_time
+			&"hold": expired = note_data[&"end_time"] < music_time
+		
+		if expired:
 			recycle_note(active_notes[i][&"node"])
 			active_notes.remove_at(i)
-		elif note_data[&"type"] == &"hold" and note_data[&"end_time"] - music_time < 0:
-			recycle_note(active_notes[i][&"node"])
-			active_notes.remove_at(i)
-		else:
-			i += 1
 			
 
 ## 加载音符数据
@@ -303,14 +300,13 @@ func load_timing_points(_chart: PackedStringArray) -> void:
 			timing_points.append([
 			c_time(_chart[index].get_slice(",", 0)),
 			-100.0 / float(_chart[index].get_slice(",", 1))])
-
 		index += 1
 
 
 func acquire_note(type :StringName) -> Node2D:
 	match type:
-		&"tap": return tap_pool.acquire_objec()
-		&"hold": return hold_pool.acquire_objec()
+		&"tap": return tap_pool.acquire_object()
+		&"hold": return hold_pool.acquire_object()
 	return null
 
 

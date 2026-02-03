@@ -11,7 +11,8 @@ func _ready() -> void:
 	PoolManager.register_object_pool(self)
 	for i in pool_size:
 		var node: Node2D = object_scene.instantiate()
-		_set_objec_state(node, false)
+		node.visible = false
+		node.set_process(false)
 		pool.append(node)
 		add_child(node)
 
@@ -20,22 +21,26 @@ func _exit_tree() -> void:
 	PoolManager.register_object_pool(self)
 
 ## 获取一个对象
-func acquire_objec(spawn_position := Vector2(0, 0) , spawn_rotation :float = 0.0) -> Node2D:
+func acquire_object(spawn_position := Vector2(0, 0) , spawn_rotation :float = 0.0) -> Node2D:
 	#获取第一个对象如果是被占用的就新增一个对象
-	var node :Node2D = pool.front()
+	var node :Node2D = pool.pop_front()
 	if node.visible:
+		pool.append(node)
 		node = object_scene.instantiate()
 		add_child(node)
+		#print(name+"扩充")
 	pool.append(node)
 	
 	node.position = spawn_position
 	node.rotation = spawn_rotation
-	_set_objec_state(node, true)
+	node.visible = true
+	node.set_process(true)
 	return node
 
 ## 回收一个对象
 func recycle_object(node :Node2D) -> void:
-	_set_objec_state(node, false)
+	node.visible = false
+	node.set_process(false)
 	node.position = Vector2.ZERO
 	node.rotation = 0.0
 	node.modulate = Color.WHITE
@@ -45,8 +50,3 @@ func recycle_object(node :Node2D) -> void:
 func clear_pool() -> void:
 	for node in pool:
 		recycle_object(node)
-
-## 设置对象是非启用
-func _set_objec_state(node :Node2D, switch :bool) -> void:
-	node.visible = switch
-	node.set_process(switch)
