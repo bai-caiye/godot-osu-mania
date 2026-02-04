@@ -7,4 +7,5 @@ var type :StringName = &"hold"
 var time :float = 0.0       ## 打击时机
 var track :int = 0          ## 在哪条轨道上
 var end_time :float = 0.0   ## hold的持续时间
-var holding :bool = false   ## 是否被按下
+var hited :bool = false
+var holding :bool = false

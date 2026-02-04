@@ -21,6 +21,9 @@ var pause :bool = false:
 		music.stream_paused = pause
 		set_process(!pause)
 
+var key_map :Dictionary = {
+	KEY_D: 0, KEY_F: 1, KEY_J: 2, KEY_K: 3}
+
 var note_quantity: int        ## 音符总数
 var notes_data: Array = [] 
 var notes_data_index: int = 0
@@ -51,6 +54,18 @@ func _unhandled_key_input(event: InputEvent) -> void:
 				DisplayServer.window_set_mode(
 				DisplayServer.WINDOW_MODE_FULLSCREEN if full_screen else DisplayServer.WINDOW_MODE_WINDOWED)
 				DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, full_screen)
+
+
+
+func hit(track :int) -> void:
+	for i in active_notes.size():
+		if i > key_quantity: break
+		var note :Node2D = active_notes[i][&"node"]
+		if note.track == track and !note.hited and abs(note.time - music_time) <= 0.09:
+			note.hited = true
+			if note.type == &"tap": recycle_note(note)
+			else: note.holding = true
+	
 
 ## 初始化
 func _ready() -> void:
@@ -143,22 +158,29 @@ func update_active_notes(time :float) -> void:
 	for note_info in active_notes:
 		var note_node: Node2D = note_info[&"node"]
 		var note_data: Dictionary = note_info[&"data"]
-		note_node.global_position.y = line_y - calculate_distance(time, note_data[&"time"])
+		
+		var holding :bool = note_node.type == &"hold" and note_data[&"time"] < time
+		var head_y: float = line_y if holding else line_y - calculate_distance(time, note_data[&"time"])
+		
+		note_node.global_position.y = head_y
 		
 		if note_node.type == &"hold":
 			note_node.end.global_position.y = line_y - calculate_distance(time, note_data[&"end_time"])
-			note_node.body.scale.y = (note_node.global_position.y - note_node.end.global_position.y) / 100.0
+			note_node.body.scale.y = (head_y - note_node.end.global_position.y) / 100.0
 			
 
 ## from_time->to_time之间音符移动的距离
 func calculate_distance(from_time: float, to_time: float) -> float:
-	if from_time >= to_time: return 0.0
+	if from_time > to_time:
+		return -calculate_distance(to_time, from_time)
+	
+	if from_time == to_time:
+		return 0.0
 	
 	var total_distance: float = 0.0
 	var current_time: float = from_time
 	var timing_index: int = current_timing_index
 	
-	#分段计算距离 也是定积分
 	while current_time < to_time:
 		var segment_sv: float = 1.0
 		if timing_index >= 0 and timing_index < timing_points.size():
@@ -303,13 +325,15 @@ func acquire_note(type :StringName) -> Node2D:
 
 ## 放回note
 func recycle_note(note :Node2D) -> void:
+	note.hited = false
 	match note.type:
 		&"tap": tap_pool.recycle_object(note)
 		&"hold": hold_pool.recycle_object(note)
 
 ## 回收对象
 func recycle_expired_notes() -> void:
-	for i in range(active_notes.size() - 1, -1, -1):
+	var i :int = 0
+	while i < active_notes.size() and i <= key_quantity:
 		var note_data: Dictionary = active_notes[i][&"data"]
 		var expired: bool = false
 		
@@ -320,7 +344,8 @@ func recycle_expired_notes() -> void:
 		if expired:
 			recycle_note(active_notes[i][&"node"])
 			active_notes.remove_at(i)
-
+		else:
+			i += 1
 
 func conversion_type(x) -> StringName:
 	match int(x):
