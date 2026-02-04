@@ -36,6 +36,7 @@ var current_timing_index: int = -1
 
 var slider_velocity: float = 1.0  ## 变速(百分比%)
 var music_time: float = 0.0   ## 当前音乐播放时间
+var offset :float = 0.05      ## 默认偏移
 
 var full_screen :bool =false
 func _unhandled_key_input(event: InputEvent) -> void:
@@ -283,8 +284,8 @@ func load_notes_data(_chart: PackedStringArray) -> void:
 			
 		var note_data :Dictionary = {
 			&"type": conversion_type(line.get_slice(",", 3)),
-			&"time": c_time(line.get_slice(",", 2)) + global_offset,
-			&"end_time": c_time(line.get_slice(",", 5).get_slice(":", 0)) + global_offset,
+			&"time": c_time(line.get_slice(",", 2)) + global_offset + offset,
+			&"end_time": c_time(line.get_slice(",", 5).get_slice(":", 0)) + global_offset + offset,
 			&"track_index": conversion_track(line.get_slice(",", 0)),
 			&"lead_time": 0.0
 		}
