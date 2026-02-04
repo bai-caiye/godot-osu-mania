@@ -36,7 +36,7 @@ var current_timing_index: int = -1
 
 var slider_velocity: float = 1.0  ## 变速(百分比%)
 var music_time: float = 0.0   ## 当前音乐播放时间
-var offset :float = 0.05      ## 默认偏移
+var offset :float = 0.04      ## 默认偏移
 
 var full_screen :bool =false
 func _unhandled_key_input(event: InputEvent) -> void:
@@ -117,7 +117,7 @@ func spawn_notes(time :float) -> void:
 		if note_data[&"time"] - time > note_data[&"lead_time"]: break
 		
 		var note_node: Node2D = acquire_note(note_data[&"type"])
-		note_node.time = note_data[&"time"]
+		note_node.time = note_data[&"time"] 
 		note_node.track = note_data[&"track_index"]
 		note_node.scale.x = tracks.track_H / 100.0
 		note_node.position.x = (note_node.track + 0.5) * tracks.track_H
