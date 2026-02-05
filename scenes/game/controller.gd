@@ -54,7 +54,18 @@ func _unhandled_key_input(event: InputEvent) -> void:
 				DisplayServer.window_set_mode(
 				DisplayServer.WINDOW_MODE_FULLSCREEN if full_screen else DisplayServer.WINDOW_MODE_WINDOWED)
 				DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, full_screen)
-
+			_:
+				if key_map.has(event.keycode):
+					hit(key_map[event.keycode])
+	
+	if event.is_released() and key_map.has(event.keycode):
+		for i in active_notes.size():
+			if i > key_quantity: break
+			var note :Node2D = active_notes[i][&"node"]
+			if note.track == key_map[event.keycode] and note.type == &"hold" and note.holding:
+				note.holding = false
+				if abs(note.end_time - music_time) <= 0.09:
+					recycle_note(note)
 
 
 func hit(track :int) -> void:
@@ -159,15 +170,23 @@ func update_active_notes(time :float) -> void:
 		var note_node: Node2D = note_info[&"node"]
 		var note_data: Dictionary = note_info[&"data"]
 		
-		var holding :bool = note_node.type == &"hold" and note_data[&"time"] < time
-		var head_y: float = line_y if holding else line_y - calculate_distance(time, note_data[&"time"])
+		var head_y: float
+		if note_node.type == &"hold" and note_node.holding and note_data[&"time"] < music_time:
+			if note_data[&"end_time"] < music_time:
+				recycle_note(note_node)
+				active_notes.erase(note_info)
+			head_y = line_y
+			note_data[&"time"] = music_time
+		else:
+			head_y = line_y - calculate_distance(time, note_data[&"time"])
 		
 		note_node.global_position.y = head_y
 		
 		if note_node.type == &"hold":
 			note_node.end.global_position.y = line_y - calculate_distance(time, note_data[&"end_time"])
 			note_node.body.scale.y = (head_y - note_node.end.global_position.y) / 100.0
-			
+			if note_node.hited and !note_node.holding:
+				note_node.modulate.a = 0.5
 
 ## from_time->to_time之间音符移动的距离
 func calculate_distance(from_time: float, to_time: float) -> float:
@@ -328,7 +347,9 @@ func recycle_note(note :Node2D) -> void:
 	note.hited = false
 	match note.type:
 		&"tap": tap_pool.recycle_object(note)
-		&"hold": hold_pool.recycle_object(note)
+		&"hold":
+			note.holding = false
+			hold_pool.recycle_object(note)
 
 ## 回收对象
 func recycle_expired_notes() -> void:
@@ -338,8 +359,10 @@ func recycle_expired_notes() -> void:
 		var expired: bool = false
 		
 		match note_data[&"type"]:
-			&"tap": expired = note_data[&"time"] < music_time
-			&"hold": expired = note_data[&"end_time"] < music_time
+			&"tap": expired = note_data[&"time"] < music_time - 0.09
+			&"hold":
+				#if note_data[&"time"] < music_time: active_notes[i][&"node"].holding = true
+				expired = active_notes[i][&"node"].end.global_position.y > 1080
 		
 		if expired:
 			recycle_note(active_notes[i][&"node"])
