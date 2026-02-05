@@ -14,6 +14,7 @@ extends Control
 @export var tap_pool: ObjectPool
 @export var hold_pool: ObjectPool
 
+const JUDGE_WINDOW :float = 0.09
 
 var pause :bool = false:
 	set(v):
@@ -21,23 +22,23 @@ var pause :bool = false:
 		music.stream_paused = pause
 		set_process(!pause)
 
-var key_map :Dictionary = {
-	KEY_D: 0, KEY_F: 1, KEY_J: 2, KEY_K: 3}
-
-var note_quantity: int        ## 音符总数
-var notes_data: Array = [] 
-var notes_data_index: int = 0
-var active_notes: Array = []
-
 var chart: PackedStringArray  ## 谱面文本
 var beatmap_data: Dictionary  ## 谱面信息
-var key_quantity: int         ## 有多少key
-var line_y: float             ## 判定线的高度
 
+var key_quantity: int         ## 有多少key
+#var key_map :Dictionary = {
+	#KEY_D: 0, KEY_F: 1, KEY_J: 2, KEY_K: 3}
+
+var note_quantity: int                  ## 音符总数
+var notes_data :Array[Dictionary]       ## note数据用于生成note
+var notes_data_index: int = 0
+var active_notes: Array[Node2D] = []    ## 活动的音符 移动note
+var judgment_queue :Array[Node2D] = []  ## 判定区 用来存进入判定区间的note
+var expired_notes :Array[Node2D] = []   ## 回收缓存 用于存放要在帧末回收的note
+
+var line_y: float             ## 判定线的高度
 var timing_points: Array      ## 时间点数组
 var current_timing_index: int = -1
-
-var slider_velocity: float = 1.0  ## 变速(百分比%)
 var music_time: float = 0.0   ## 当前音乐播放时间
 var offset :float = 0.04      ## 默认偏移
 
@@ -54,29 +55,29 @@ func _unhandled_key_input(event: InputEvent) -> void:
 				DisplayServer.window_set_mode(
 				DisplayServer.WINDOW_MODE_FULLSCREEN if full_screen else DisplayServer.WINDOW_MODE_WINDOWED)
 				DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, full_screen)
-			_:
-				if key_map.has(event.keycode):
-					hit(key_map[event.keycode])
-	
-	if event.is_released() and key_map.has(event.keycode):
-		for i in active_notes.size():
-			if i > key_quantity: break
-			var note :Node2D = active_notes[i][&"node"]
-			if note.track == key_map[event.keycode] and note.type == &"hold" and note.holding:
-				note.holding = false
-				if abs(note.end_time - music_time) <= 0.09:
-					recycle_note(note)
-
-
-func hit(track :int) -> void:
-	for i in active_notes.size():
-		if i > key_quantity: break
-		var note :Node2D = active_notes[i][&"node"]
-		if note.track == track and !note.hited and abs(note.time - music_time) <= 0.09:
-			note.hited = true
-			if note.type == &"tap": recycle_note(note)
-			else: note.holding = true
-	
+			#_:
+				#if key_map.has(event.keycode):
+					#hit(key_map[event.keycode])
+	#
+	#if event.is_released() and key_map.has(event.keycode):
+		#for i in active_notes.size():
+			#if i > key_quantity: break
+			#var note :Node2D = active_notes[i][&"node"]
+			#if note.track == key_map[event.keycode] and note.type == &"hold" and note.holding:
+				#note.holding = false
+				#if abs(note.end_time - music_time) <= 0.09:
+					#recycle_note(note)
+#
+#
+#func hit(track :int) -> void:
+	#for i in active_notes.size():
+		#if i > key_quantity: break
+		#var note :Node2D = active_notes[i][&"node"]
+		#if note.track == track and !note.hited and abs(note.time - music_time) <= 0.09:
+			#note.hited = true
+			#if note.type == &"tap": recycle_note(note)
+			#else: note.holding = true
+	#
 
 ## 初始化
 func _ready() -> void:
@@ -107,7 +108,7 @@ func restart(_chart_path :String) -> void:
 	current_timing_index = -1
 	#回收全部note
 	for i in active_notes.size():
-		recycle_note(active_notes[i][&"node"])
+		recycle_note(active_notes[i])
 	active_notes.clear()
 	
 	if chart_path != _chart_path:
@@ -119,74 +120,67 @@ func restart(_chart_path :String) -> void:
 ## 主要循环
 func _process(delta: float) -> void:
 	music_time += delta
-	var music_dt :float = music.get_playback_position() + AudioServer.get_time_since_last_mix() - music_time
-	if music.playing and abs(music_dt) >= 0.015:
-		music_time += music_dt
-		
-	#if not music.playing:  B方案
-		#music_time += delta
-	#else:
-		#var raw_time := music.get_playback_position() + AudioServer.get_time_since_last_mix() - AudioServer.get_output_latency()
-		#music_time += (raw_time - music_time) * 0.3
-	slider_velocity = get_slider_velocity()
 	
-	spawn_notes(music_time)
-	update_active_notes(music_time)
+	var music_t :float = music.get_playback_position() + AudioServer.get_time_since_last_mix()
+	if music.playing and abs(music_t - music_time) >= 0.015:
+		music_time = music_t
+		print("修正")
+		
+	push_timing_index()
+	spawn_notes()
+	update_active_notes()
 	recycle_expired_notes()
 
 
 ## 生成note
-func spawn_notes(time :float) -> void:
+func spawn_notes() -> void:
 	while notes_data_index < notes_data.size():
 		var note_data: Dictionary = notes_data[notes_data_index]
+		if note_data[&"time"] - music_time > note_data[&"lead_time"]: break
 		
-		if note_data[&"time"] - time > note_data[&"lead_time"]: break
+		var note: Node2D = acquire_note(note_data[&"type"])
+		note.time = note_data[&"time"] 
+		note.track = note_data[&"track_index"]
+		note.scale.x = tracks.track_H / 100.0
+		note.position.x = (note.track + 0.5) * tracks.track_H
+		if note.type == &"hold": note.end_time = note_data[&"end_time"]
 		
-		var note_node: Node2D = acquire_note(note_data[&"type"])
-		note_node.time = note_data[&"time"] 
-		note_node.track = note_data[&"track_index"]
-		note_node.scale.x = tracks.track_H / 100.0
-		note_node.position.x = (note_node.track + 0.5) * tracks.track_H
-		note_node.global_position.y = line_y - calculate_distance(time, note_node.time)
+		match key_quantity:
+			4: note.modulate = Color("4da6ffff") if note.track == 1 or note.track == 2 else Color.WHITE
 		
-		if note_node.type == &"hold":
-			note_node.end_time = note_data[&"end_time"]
-			
-		if note_node.track == 1 or note_node.track == 2:
-			note_node.modulate = Color(0.3, 0.65, 1.0, 1.0)
-		else: 
-			note_node.modulate = Color.WHITE
-		
-		active_notes.append({
-			&"data": note_data,
-			&"node": note_node})
+		active_notes.append(note)
 		notes_data_index += 1
-			
-
+		
 
 ## 更新note位置
-func update_active_notes(time :float) -> void:
-	for note_info in active_notes:
-		var note_node: Node2D = note_info[&"node"]
-		var note_data: Dictionary = note_info[&"data"]
-		
-		var head_y: float
-		if note_node.type == &"hold" and note_node.holding and note_data[&"time"] < music_time:
-			if note_data[&"end_time"] < music_time:
-				recycle_note(note_node)
-				active_notes.erase(note_info)
-			head_y = line_y
-			note_data[&"time"] = music_time
-		else:
-			head_y = line_y - calculate_distance(time, note_data[&"time"])
-		
-		note_node.global_position.y = head_y
-		
-		if note_node.type == &"hold":
-			note_node.end.global_position.y = line_y - calculate_distance(time, note_data[&"end_time"])
-			note_node.body.scale.y = (head_y - note_node.end.global_position.y) / 100.0
-			if note_node.hited and !note_node.holding:
-				note_node.modulate.a = 0.5
+func update_active_notes() -> void:
+	for i in range(active_notes.size() - 1, -1, -1):
+		var note :Node2D = active_notes[i]
+		match note.type:
+			&"tap": update_note(note)
+			&"hold": update_hold(note)
+
+
+func update_note(note: Node2D) -> void:
+	if note.time < music_time - JUDGE_WINDOW:
+		add_expired_notes(note)
+		return
+	note.global_position.y = line_y - calculate_distance(music_time, note.time)
+
+
+func update_hold(note: Node2D) -> void:
+	if note.end_time < music_time - JUDGE_WINDOW and note.end.global_position.y > 1080.0:
+		add_expired_notes(note)
+		return
+	
+	var head_y :float = line_y if (note.holding and note.time < music_time) else line_y - calculate_distance(music_time, note.time)
+	note.global_position.y = head_y
+	
+	note.end.global_position.y = line_y - calculate_distance(music_time, note.end_time)
+	note.body.scale.y = (head_y - note.end.global_position.y) / 100.0
+	
+	if note.hited and not note.holding:
+		note.node.modulate.a = 0.5
 
 ## from_time->to_time之间音符移动的距离
 func calculate_distance(from_time: float, to_time: float) -> float:
@@ -209,12 +203,22 @@ func calculate_distance(from_time: float, to_time: float) -> float:
 		if timing_index + 1 < timing_points.size():
 			segment_end_time = minf(to_time, timing_points[timing_index + 1][0])
 		
-		#分段时间 * speed * segment_sv
 		total_distance += (segment_end_time - current_time) * speed * segment_sv
 		current_time = segment_end_time
 		timing_index += 1
 	return total_distance
 
+
+func add_expired_notes(note :Node2D) -> void:
+	active_notes.erase(note)
+	expired_notes.append(note)
+	
+
+
+## 回收对象
+func recycle_expired_notes() -> void:
+	while expired_notes.size() > 0:
+		recycle_note(expired_notes.pop_back())
 
 ## 预算lead_time
 func precalculate_lead_times() -> void:
@@ -258,18 +262,12 @@ func calculate_lead_time(note_time: float) -> float:
 	return note_time - current_time
 
 
-## 获取当前时间段的SV
-func get_slider_velocity() -> float:
-	if timing_points.is_empty():
-		current_timing_index = -1
-		return 1.0
+func push_timing_index() -> void:
+	if timing_points.is_empty(): current_timing_index = -1; return
 	
 	while current_timing_index + 1 < timing_points.size() and music_time >= timing_points[current_timing_index + 1][0]:
 		current_timing_index += 1
-	
-	if current_timing_index < 0:
-		return 1.0
-	return timing_points[current_timing_index][1]
+
 
 
 ## 加载谱面
@@ -330,8 +328,7 @@ func load_notes_data(_chart: PackedStringArray) -> void:
 			&"track_index": conversion_track(line.get_slice(",", 0)),
 			&"lead_time": 0.0
 		}
-		if note_data[&"end_time"] <= 0.0:
-			note_data[&"end_time"] = 0.0
+		if note_data[&"end_time"] <= 0.0: note_data[&"end_time"] = 0.0
 		notes_data.append(note_data)
 		index += 1
 
@@ -351,24 +348,6 @@ func recycle_note(note :Node2D) -> void:
 			note.holding = false
 			hold_pool.recycle_object(note)
 
-## 回收对象
-func recycle_expired_notes() -> void:
-	var i :int = 0
-	while i < active_notes.size() and i <= key_quantity:
-		var note_data: Dictionary = active_notes[i][&"data"]
-		var expired: bool = false
-		
-		match note_data[&"type"]:
-			&"tap": expired = note_data[&"time"] < music_time - 0.09
-			&"hold":
-				#if note_data[&"time"] < music_time: active_notes[i][&"node"].holding = true
-				expired = active_notes[i][&"node"].end.global_position.y > 1080
-		
-		if expired:
-			recycle_note(active_notes[i][&"node"])
-			active_notes.remove_at(i)
-		else:
-			i += 1
 
 func conversion_type(x) -> StringName:
 	match int(x):
