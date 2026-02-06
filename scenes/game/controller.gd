@@ -2,6 +2,7 @@ extends Control
 ##加载音符控制音符移动的脚本
 @export_group("Option")
 @export_global_file("*.osu") var chart_path: String
+@export var auto_play :bool = false
 @export var speed: float = 1500.0  ## 整体速度
 @export var global_offset: float = 0.0    ## 整体偏移
 
@@ -26,8 +27,8 @@ var chart: PackedStringArray  ## 谱面文本
 var beatmap_data: Dictionary  ## 谱面信息
 
 var key_quantity: int         ## 有多少key
-#var key_map :Dictionary = {
-	#KEY_D: 0, KEY_F: 1, KEY_J: 2, KEY_K: 3}
+var key_map :Dictionary = {
+	KEY_D: 0, KEY_F: 1, KEY_J: 2, KEY_K: 3}
 
 var note_quantity: int                  ## 音符总数
 var notes_data :Array[Dictionary]       ## note数据用于生成note
@@ -40,7 +41,7 @@ var line_y: float             ## 判定线的高度
 var timing_points: Array      ## 时间点数组
 var current_timing_index: int = -1
 var music_time: float = 0.0   ## 当前音乐播放时间
-var offset :float = 0.04      ## 默认偏移
+var offset :float = 0.1      ## 默认偏移
 
 var full_screen :bool =false
 func _unhandled_key_input(event: InputEvent) -> void:
@@ -62,22 +63,22 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	#if event.is_released() and key_map.has(event.keycode):
 		#for i in active_notes.size():
 			#if i > key_quantity: break
-			#var note :Node2D = active_notes[i][&"node"]
+			#var note :Node2D = active_notes[i]
 			#if note.track == key_map[event.keycode] and note.type == &"hold" and note.holding:
 				#note.holding = false
 				#if abs(note.end_time - music_time) <= 0.09:
-					#recycle_note(note)
+					#expired_notes.append(note)
 #
 #
 #func hit(track :int) -> void:
 	#for i in active_notes.size():
 		#if i > key_quantity: break
-		#var note :Node2D = active_notes[i][&"node"]
+		#var note :Node2D = active_notes[i]
 		#if note.track == track and !note.hited and abs(note.time - music_time) <= 0.09:
 			#note.hited = true
-			#if note.type == &"tap": recycle_note(note)
+			#if note.type == &"tap": expired_notes.append(note)
 			#else: note.holding = true
-	#
+	
 
 ## 初始化
 func _ready() -> void:
@@ -123,7 +124,8 @@ func _process(delta: float) -> void:
 	
 	if music.playing:
 		var music_dt :float = music.get_playback_position() - music_time
-		if music_dt > 0.02 or music_dt < -0.02: music_time += music_dt
+		if music_dt > 0.02 or music_dt < -0.02:
+			music_time += music_dt
 		
 	spawn_notes()
 	update_active_notes()
@@ -132,7 +134,8 @@ func _process(delta: float) -> void:
 
 ## 生成note
 func spawn_notes() -> void:
-	while notes_data_index < notes_data.size():
+	var spawn :int = 0
+	while spawn < key_quantity and notes_data_index < notes_data.size():
 		var note_data: Dictionary = notes_data[notes_data_index]
 		if note_data[&"time"] - music_time > note_data[&"lead_time"]: break
 		
@@ -147,6 +150,7 @@ func spawn_notes() -> void:
 			4: note.modulate = Color("4da6ffff") if note.track == 1 or note.track == 2 else Color.WHITE
 		
 		active_notes.append(note)
+		spawn += 1
 		notes_data_index += 1
 		
 
@@ -161,25 +165,20 @@ func update_active_notes() -> void:
 
 
 func update_note(note: Node2D) -> void:
-	if note.time < music_time - JUDGE_WINDOW:
-		add_expired_notes(note)
-		return
 	note.global_position.y = line_y - calculate_distance(music_time, note.time)
 
 
 func update_hold(note: Node2D) -> void:
-	if note.end_time < music_time - JUDGE_WINDOW and note.end.global_position.y > 1080.0:
-		add_expired_notes(note)
-		return
-	
-	var head_y :float = line_y if (note.holding and note.time < music_time) else line_y - calculate_distance(music_time, note.time)
-	note.global_position.y = head_y
+	if note.holding and note.time < music_time:
+		note.global_position.y = line_y
+		note.time = music_time
+	else:
+		note.global_position.y = line_y - calculate_distance(music_time, note.time)
 	
 	note.end.global_position.y = line_y - calculate_distance(music_time, note.end_time)
-	note.body.scale.y = (head_y - note.end.global_position.y) / 100.0
+	note.body.scale.y = (note.global_position.y - note.end.global_position.y) / 100.0
 	
-	if note.hited and not note.holding:
-		note.node.modulate.a = 0.5
+	
 
 ## from_time->to_time之间音符移动的距离
 func calculate_distance(from_time: float, to_time: float) -> float:
@@ -208,16 +207,36 @@ func calculate_distance(from_time: float, to_time: float) -> float:
 	return total_distance
 
 
-func add_expired_notes(note :Node2D) -> void:
-	active_notes.erase(note)
-	expired_notes.append(note)
-	
-
-
 ## 回收对象
 func recycle_expired_notes() -> void:
+	for i in active_notes.size():
+		if i > key_quantity: break
+		var note :Node2D = active_notes[i]
+		match note.type:
+			&"tap":
+				var expired_time :float = music_time - JUDGE_WINDOW * int(!auto_play)
+				if note.time < expired_time:
+					if auto_play: note.hited = true  # 后面替换成hit方法
+					expired_notes.append(note)
+					
+			&"hold":
+				var expired_time :float = music_time - JUDGE_WINDOW * int(!auto_play and !note.holding)
+				if note.time < expired_time:
+					if auto_play:  # 后面替换成hit方法
+						note.hited = true
+						note.holding = true
+						continue
+					note.modulate.a = 0.5
+				
+				if note.end_time < expired_time and note.holding or note.end.global_position.y > 1080.0:
+					expired_notes.append(note)
+		
 	while expired_notes.size() > 0:
-		recycle_note(expired_notes.pop_back())
+		var expired_note :Node2D = expired_notes.pop_back()
+		active_notes.erase(expired_note)
+		recycle_note(expired_note)
+		
+
 
 ## 预算lead_time
 func precalculate_lead_times() -> void:

@@ -1,52 +1,81 @@
-class_name ObjectPool extends MultiMeshInstance2D
-## 对象池
+class_name ObjectPool extends Node2D
+## 对象池：预创建对象循环复用，支持最大容量限制与空闲衰减回收
 
-@export var pool_size :int = 10       ## 对象池的大小
-@export var object_scene :PackedScene   ## 要实例化的对象的场景
+@export_range(1, 80) var pool_size: int = 10              ## 初始对象池大小
+@export_range(100, 2000) var max_pool_size: int = 1000    ## 最大对象数量
+@export var object_scene: PackedScene                     ## 要创建的对象的场景
+@export_range(0.0, 10.0, 0.1) var decay_interval := 1.0   ## 衰减检查间隔
 
-var pool :Array[Node]
+var pool: Array[Node2D] = []        ## 空闲对象池
+var _total_objects := 0             ## 当前对象总数（含使用中）
 
 ## 初始化对象池并把自己注册到管理器名单
 func _ready() -> void:
-	PoolManager.register_object_pool(self)
-	for i in pool_size:
+	if !object_scene: assert(false, name + " 对象池没有要创建的对象") ;return
+	if pool_size < 0: assert(false, name + " 对象池大小不能小于 0") ;return
+	if max_pool_size < pool_size: assert(false, name + " 最大容量不能小于初始容量") ;return
+	
+	if is_instance_valid(PoolManager):
+		PoolManager.register_object_pool(self)
+	init_pool()
+	
+
+## 在节点离开树前注销名单
+func _exit_tree() -> void:
+	if is_instance_valid(PoolManager):
+		PoolManager.unregister_object_pool(self)
+
+## 初始化对象池
+func init_pool() -> void:
+	clear_pool()
+	pool.resize(pool_size)
+	for i in range(pool_size):
 		var node: Node2D = object_scene.instantiate()
 		node.visible = false
-		node.set_process(false)
-		pool.append(node)
+		node.process_mode = Node.PROCESS_MODE_DISABLED
 		add_child(node)
+		pool[i] = node
+	_total_objects = pool_size
 
-## 在节点释放注销
-func _exit_tree() -> void:
-	PoolManager.register_object_pool(self)
+## 清空对象池(释放所有对象)
+func clear_pool() -> void:
+	pool.clear()
+	for child in get_children():
+		child.queue_free()
+	_total_objects = 0
 
 ## 获取一个对象
-func acquire_object(spawn_position := Vector2(0, 0) , spawn_rotation :float = 0.0) -> Node2D:
-	#获取第一个对象如果是被占用的就新增一个对象
-	var node :Node2D = pool.pop_front()
-	if node.visible:
-		pool.append(node)
-		node = object_scene.instantiate()
-		add_child(node)
-		#print(name+"扩充")
-	pool.append(node)
+func acquire_object() -> Node2D:
+	var node: Node2D
 	
-	node.position = spawn_position
-	node.rotation = spawn_rotation
+	if pool.is_empty():
+		if _total_objects < max_pool_size:
+			node = object_scene.instantiate()
+			add_child(node)
+			_total_objects += 1
+		else: return null
+	else:
+		node = pool.pop_back()
+	
 	node.visible = true
-	node.set_process(true)
+	node.process_mode = PROCESS_MODE_INHERIT
 	return node
 
 ## 回收一个对象
-func recycle_object(node :Node2D) -> void:
+func recycle_object(node: Node2D) -> void:
+	if !is_instance_valid(node): return
+	
 	node.visible = false
-	node.set_process(false)
+	node.process_mode = PROCESS_MODE_DISABLED
 	node.position = Vector2.ZERO
-	node.rotation = 0.0
+	node.scale = Vector2.ONE
 	node.modulate = Color.WHITE
-	node.self_modulate = Color.WHITE
+	
+	pool.push_back(node)
 
 ## 回收全部对象
-func clear_pool() -> void:
-	for node in pool:
-		recycle_object(node)
+func recycle_objects() -> void:
+	for node in get_children():
+		if node is Node2D and not pool.has(node):
+			recycle_object(node)
+		

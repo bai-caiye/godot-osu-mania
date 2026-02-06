@@ -18,7 +18,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("2_33cqm")
-chart_path = "C:/Users/BaiCaiye/AppData/Roaming/Godot/app_userdata/osu!mania/songs/void (Mournfinale) feat/void (Mournfinale) feat. Hoshikuma Minami - Testify (Akasha-) [Future  Alleyne's Insane].osu"
+chart_path = "C:/Users/BaiCaiye/AppData/Roaming/Godot/app_userdata/osu!mania/songs/2329600 Eliminate - ON MY MIND (Waste My Time)/Eliminate - ON MY MIND (Waste My Time) (Usagi_) [Fading Hours].osu"
 bg = NodePath("BG")
 music = NodePath("Music")
 tracks = NodePath("Tracks")
@@ -48,17 +48,17 @@ process_priority = 2
 layout_mode = 1
 
 [node name="Notes" type="Node2D" parent="." unique_id=1598348401]
+z_index = 5
 position = Vector2(960, 0)
 
-[node name="TapNotePool" type="MultiMeshInstance2D" parent="Notes" unique_id=608125722]
-process_mode = 1
+[node name="TapNotePool" type="Node2D" parent="Notes" unique_id=856678103]
 script = ExtResource("3_kelw5")
 pool_size = 30
+max_pool_size = 2000
 object_scene = ExtResource("4_5i0tg")
 metadata/_custom_type_script = "uid://d1yvrkddhp5ak"
 
-[node name="HoldNotePool" type="MultiMeshInstance2D" parent="Notes" unique_id=1601951825]
-process_mode = 1
+[node name="HoldNotePool" type="Node2D" parent="Notes" unique_id=827082849]
 script = ExtResource("3_kelw5")
 object_scene = ExtResource("5_bdhmt")
 metadata/_custom_type_script = "uid://d1yvrkddhp5ak"

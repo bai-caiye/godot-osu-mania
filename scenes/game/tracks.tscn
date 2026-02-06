@@ -107,6 +107,7 @@ mouse_filter = 2
 color = Color(0, 0, 0, 0.745098)
 
 [node name="Line" type="ColorRect" parent="." unique_id=1745143330]
+z_index = 10
 custom_minimum_size = Vector2(280, 3)
 layout_mode = 1
 anchors_preset = 8
