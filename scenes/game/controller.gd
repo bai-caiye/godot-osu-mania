@@ -121,12 +121,10 @@ func restart(_chart_path :String) -> void:
 func _process(delta: float) -> void:
 	music_time += delta
 	
-	var music_t :float = music.get_playback_position() + AudioServer.get_time_since_last_mix()
-	if music.playing and abs(music_t - music_time) >= 0.015:
-		music_time = music_t
-		print("修正")
+	if music.playing:
+		var music_dt :float = music.get_playback_position() - music_time
+		if music_dt > 0.02 or music_dt < -0.02: music_time += music_dt
 		
-	push_timing_index()
 	spawn_notes()
 	update_active_notes()
 	recycle_expired_notes()
@@ -154,6 +152,7 @@ func spawn_notes() -> void:
 
 ## 更新note位置
 func update_active_notes() -> void:
+	push_timing_index()
 	for i in range(active_notes.size() - 1, -1, -1):
 		var note :Node2D = active_notes[i]
 		match note.type:
