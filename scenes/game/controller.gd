@@ -117,7 +117,7 @@ func restart(_chart_path :String) -> void:
 		chart_path = _chart_path
 	start()
 
-
+## 获取音乐时间的精准位置
 func get_music_position() -> float:
 	return music.get_playback_position()+AudioServer.get_time_since_last_mix()-AudioServer.get_output_latency()
 
@@ -129,7 +129,8 @@ func _process(delta: float) -> void:
 		var music_t :float = get_music_position()
 		var music_dt :float = music_t - music_time
 		if music_dt > 0.015 or music_dt < -0.015:
-			music_time = music_t
+			music_time = get_music_position()
+			print("a")
 	
 	spawn_notes()
 	update_active_notes()
@@ -152,7 +153,12 @@ func spawn_notes() -> void:
 		
 		match key_quantity:
 			4: note.modulate = Color("4da6ffff") if note.track == 1 or note.track == 2 else Color.WHITE
-		
+			7:
+				if note.track == 3:
+					note.modulate = Color("ffcc4dff")
+				else:
+					note.modulate = Color("4da6ffff") if note.track in [1,5] else Color.WHITE
+				
 		active_notes.append(note)
 		spawn += 1
 		notes_data_index += 1
@@ -161,29 +167,38 @@ func spawn_notes() -> void:
 ## 更新note位置
 func update_active_notes() -> void:
 	push_timing_index()
+	var last_note_time :float = 0.0
+	var last_note_pos :float = 0.0
+	
 	for i in range(active_notes.size() - 1, -1, -1):
 		var note :Node2D = active_notes[i]
-		match note.type:
-			&"tap": update_note(note)
-			&"hold": update_hold(note)
+		
+		if note.time == last_note_time:
+			note.global_position.y = last_note_pos
+			if note.type == &"hold":
+				note.end.global_position.y = line_y - calculate_distance(music_time, note.end_time)
+				note.body.scale.y = (note.global_position.y - note.end.global_position.y) / 100.0
+		else:
+			update_note(note)
+			last_note_time = note.time
+			last_note_pos = note.global_position.y
 
 
 func update_note(note: Node2D) -> void:
-	note.global_position.y = line_y - calculate_distance(music_time, note.time)
-
-
-func update_hold(note: Node2D) -> void:
-	if note.holding and note.time < music_time:
-		note.global_position.y = line_y
-		note.time = music_time
-	else:
-		note.global_position.y = line_y - calculate_distance(music_time, note.time)
+	match note.type:
+		&"tap":
+			note.global_position.y = line_y - calculate_distance(music_time, note.time)
+		&"hold":
+			if note.holding and note.time < music_time:
+				note.global_position.y = line_y
+				note.time = music_time
+			else:
+				note.global_position.y = line_y - calculate_distance(music_time, note.time)
+			
+			note.end.global_position.y = line_y - calculate_distance(music_time, note.end_time)
+			note.body.scale.y = (note.global_position.y - note.end.global_position.y) / 100.0
 	
-	note.end.global_position.y = line_y - calculate_distance(music_time, note.end_time)
-	note.body.scale.y = (note.global_position.y - note.end.global_position.y) / 100.0
 	
-	
-
 ## from_time->to_time之间音符移动的距离
 func calculate_distance(from_time: float, to_time: float) -> float:
 	if from_time > to_time:
@@ -214,23 +229,22 @@ func calculate_distance(from_time: float, to_time: float) -> float:
 ## 回收对象
 func recycle_expired_notes() -> void:
 	for i in active_notes.size():
-		if i > key_quantity: break
+		if i > 20: break
 		var note :Node2D = active_notes[i]
+		var expired_time :float = music_time - JUDGE_WINDOW if !auto_play else music_time
 		match note.type:
 			&"tap":
-				var expired_time :float = music_time - JUDGE_WINDOW * int(!auto_play)
 				if note.time < expired_time:
-					if auto_play: note.hited = true  # 后面替换成hit方法
+					if auto_play:
+						note.hited = true  # 后面替换成hit方法
 					expired_notes.append(note)
 					
 			&"hold":
-				var expired_time :float = music_time - JUDGE_WINDOW * int(!auto_play and !note.holding)
 				if note.time < expired_time:
 					if auto_play:  # 后面替换成hit方法
 						note.hited = true
 						note.holding = true
-						continue
-					note.modulate.a = 0.5
+					if !note.hited: note.modulate.a = 0.5
 				
 				if note.end_time < expired_time and note.holding or note.end.global_position.y > 1080.0:
 					expired_notes.append(note)
@@ -240,7 +254,6 @@ func recycle_expired_notes() -> void:
 		active_notes.erase(expired_note)
 		recycle_note(expired_note)
 		
-
 
 ## 预算lead_time
 func precalculate_lead_times() -> void:
