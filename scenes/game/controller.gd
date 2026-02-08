@@ -14,7 +14,6 @@ extends Control
 @export var progress_bar: ColorRect
 @export var tap_pool: ObjectPool
 @export var hold_pool: ObjectPool
-@export var notes: Node2D
 
 const JUDGE_WINDOW :float = 0.09
 
