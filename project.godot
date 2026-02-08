@@ -14,6 +14,7 @@ config/name="osu!mania"
 config/tags=PackedStringArray("rhythm")
 run/main_scene="uid://c8pwgnjv1j53r"
 config/features=PackedStringArray("4.6", "Mobile")
+run/max_fps=120
 boot_splash/bg_color=Color(0, 0, 0, 1)
 boot_splash/show_image=false
 boot_splash/stretch_mode=0

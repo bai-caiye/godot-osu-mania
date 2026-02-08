@@ -14,6 +14,7 @@ extends Control
 @export var progress_bar: ColorRect
 @export var tap_pool: ObjectPool
 @export var hold_pool: ObjectPool
+@export var notes: Node2D
 
 const JUDGE_WINDOW :float = 0.09
 
@@ -90,7 +91,7 @@ func _ready() -> void:
 	if chart_path.is_empty(): return
 	load_beatmap(chart_path)
 	start()
-
+	
 func start() -> void:
 	music_time = 0.0 - lead_in_timer.wait_time
 	lead_in_timer.start()
@@ -98,7 +99,7 @@ func start() -> void:
 	
 	await lead_in_timer.timeout
 	music.play()
-	music_time = music.get_playback_position() + AudioServer.get_time_since_last_mix() - AudioServer.get_output_latency()
+	music_time = get_music_position()
 
 ## 重开
 func restart(_chart_path :String) -> void:
@@ -118,15 +119,19 @@ func restart(_chart_path :String) -> void:
 	start()
 
 
+func get_music_position() -> float:
+	return music.get_playback_position()+AudioServer.get_time_since_last_mix()-AudioServer.get_output_latency()
+
 ## 主要循环
 func _process(delta: float) -> void:
 	music_time += delta
 	
 	if music.playing:
-		var music_dt :float = music.get_playback_position() - music_time
-		if music_dt > 0.02 or music_dt < -0.02:
-			music_time += music_dt
-		
+		var music_t :float = get_music_position()
+		var music_dt :float = music_t - music_time
+		if music_dt > 0.015 or music_dt < -0.015:
+			music_time = music_t
+	
 	spawn_notes()
 	update_active_notes()
 	recycle_expired_notes()
@@ -143,7 +148,7 @@ func spawn_notes() -> void:
 		note.time = note_data[&"time"] 
 		note.track = note_data[&"track_index"]
 		note.scale.x = tracks.track_H / 100.0
-		note.position.x = (note.track + 0.5) * tracks.track_H
+		note.position.x = note.track * tracks.track_H
 		if note.type == &"hold": note.end_time = note_data[&"end_time"]
 		
 		match key_quantity:
@@ -260,15 +265,15 @@ func calculate_lead_time(note_time: float) -> float:
 			remaining_distance = 0
 			break
 	
-		var segment_sv := 1.0
-		var segment_start_time := 0.0
+		var segment_sv :float = 1.0
+		var segment_start_time :float = 0.0
 	
 		segment_sv = timing_points[timing_index][1]
 		segment_start_time = timing_points[timing_index][0]
 	
-		var segment_speed := speed * segment_sv
-		var max_time_in_segment := current_time - segment_start_time
-		var distance_in_segment := max_time_in_segment * segment_speed
+		var segment_speed :float = speed * segment_sv
+		var max_time_in_segment :float = current_time - segment_start_time
+		var distance_in_segment :float = max_time_in_segment * segment_speed
 	
 		if distance_in_segment >= remaining_distance:
 			current_time -= remaining_distance / segment_speed
@@ -285,7 +290,6 @@ func push_timing_index() -> void:
 	
 	while current_timing_index + 1 < timing_points.size() and music_time >= timing_points[current_timing_index + 1][0]:
 		current_timing_index += 1
-
 
 
 ## 加载谱面

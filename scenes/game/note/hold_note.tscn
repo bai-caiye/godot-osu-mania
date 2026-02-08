@@ -7,7 +7,7 @@
 
 [node name="HoldNote" type="Sprite2D" unique_id=1860672451 node_paths=PackedStringArray("body", "end")]
 texture = ExtResource("1_sw07j")
-offset = Vector2(0, -17.5)
+offset = Vector2(50, -17.5)
 script = ExtResource("2_ahco4")
 body = NodePath("body")
 end = NodePath("end")
@@ -16,8 +16,8 @@ metadata/_edit_horizontal_guides_ = [-100.0]
 [node name="body" type="Sprite2D" parent="." unique_id=653705925]
 scale = Vector2(1, 0.35000002)
 texture = ExtResource("2_i0reb")
-offset = Vector2(0, -50)
+offset = Vector2(50, -50)
 
 [node name="end" type="Sprite2D" parent="." unique_id=1529122467]
 texture = ExtResource("3_sw07j")
-offset = Vector2(0, -17.5)
+offset = Vector2(50, -17.5)

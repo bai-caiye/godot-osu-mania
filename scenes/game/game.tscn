@@ -18,7 +18,8 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("2_33cqm")
-chart_path = "C:/Users/BaiCaiye/AppData/Roaming/Godot/app_userdata/osu!mania/songs/2329600 Eliminate - ON MY MIND (Waste My Time)/Eliminate - ON MY MIND (Waste My Time) (Usagi_) [Fading Hours].osu"
+chart_path = "C:/Users/BaiCaiye/AppData/Roaming/Godot/app_userdata/osu!mania/songs/2385067 iKz - Gong Xing Xian Shi Ji/iKz - Gong Xing Xian Shi Ji (Hoshimegu Mio) [Tian1 Ting2 Yi1 Ye4 You2].osu"
+auto_play = true
 bg = NodePath("BG")
 music = NodePath("Music")
 tracks = NodePath("Tracks")
@@ -64,7 +65,7 @@ object_scene = ExtResource("5_bdhmt")
 metadata/_custom_type_script = "uid://d1yvrkddhp5ak"
 
 [node name="Music" type="AudioStreamPlayer" parent="." unique_id=1590063657]
-process_mode = 1
+process_priority = 1
 
 [node name="Lead-inTimer" type="Timer" parent="." unique_id=1496072064]
 process_mode = 1
