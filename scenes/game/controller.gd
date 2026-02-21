@@ -3,8 +3,6 @@ extends Control
 @export_group("Option")
 @export_global_file("*.osu") var chart_path: String
 @export var auto_play :bool = false
-@export var speed: float = 1500.0  ## 整体速度
-@export var global_offset: float = 0.0    ## 整体偏移
 
 @export_group("Node")
 @export var bg: TextureRect  ## 背景图片
@@ -17,6 +15,8 @@ extends Control
 
 const JUDGE_WINDOW :float = 0.09
 
+var speed: float = Global.speed            ## 整体速度
+var global_offset: float = Global.offset   ## 整体偏移
 var pause :bool = false:
 	set(v):
 		pause = v
@@ -26,12 +26,11 @@ var pause :bool = false:
 var chart: PackedStringArray  ## 谱面文本
 var beatmap_data: Dictionary  ## 谱面信息
 
-var key_quantity: int         ## 有多少key
-var key_map :Dictionary = {
-	KEY_D: 0, KEY_F: 1, KEY_J: 2, KEY_K: 3}
+var key_quantity: int = 4     ## 有多少key
+var key_map :Dictionary = {}
 
-var note_quantity: int                  ## 音符总数
-var notes_data :Array[Dictionary]       ## note数据用于生成note
+var note_quantity: int = 0              ## 音符总数
+var notes_data :Array[Dictionary] = []  ## note数据用于生成note
 var notes_data_index: int = 0
 var active_notes: Array[Node2D] = []    ## 活动的音符 移动note
 var judgment_queue :Array[Node2D] = []  ## 判定区 用来存进入判定区间的note
@@ -43,7 +42,6 @@ var current_timing_index: int = -1
 var music_time: float = 0.0   ## 当前音乐播放时间
 var offset :float = 0.1      ## 默认偏移
 
-var full_screen :bool =false
 func _unhandled_key_input(event: InputEvent) -> void:
 	if event.pressed and !event.is_echo():
 		match event.keycode:
@@ -51,34 +49,6 @@ func _unhandled_key_input(event: InputEvent) -> void:
 				restart(chart_path)
 			KEY_ESCAPE:
 				pause = !pause
-			KEY_F11:
-				full_screen = !full_screen
-				DisplayServer.window_set_mode(
-				DisplayServer.WINDOW_MODE_FULLSCREEN if full_screen else DisplayServer.WINDOW_MODE_WINDOWED)
-				DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, full_screen)
-			#_:
-				#if key_map.has(event.keycode):
-					#hit(key_map[event.keycode])
-	#
-	#if event.is_released() and key_map.has(event.keycode):
-		#for i in active_notes.size():
-			#if i > key_quantity: break
-			#var note :Node2D = active_notes[i]
-			#if note.track == key_map[event.keycode] and note.type == &"hold" and note.holding:
-				#note.holding = false
-				#if abs(note.end_time - music_time) <= 0.09:
-					#expired_notes.append(note)
-#
-#
-#func hit(track :int) -> void:
-	#for i in active_notes.size():
-		#if i > key_quantity: break
-		#var note :Node2D = active_notes[i]
-		#if note.track == track and !note.hited and abs(note.time - music_time) <= 0.09:
-			#note.hited = true
-			#if note.type == &"tap": expired_notes.append(note)
-			#else: note.holding = true
-	
 
 ## 初始化
 func _ready() -> void:
@@ -130,7 +100,6 @@ func _process(delta: float) -> void:
 		var music_dt :float = music_t - music_time
 		if music_dt > 0.015 or music_dt < -0.015:
 			music_time = get_music_position()
-			print("a")
 	
 	spawn_notes()
 	update_active_notes()
@@ -173,11 +142,8 @@ func update_active_notes() -> void:
 	for i in range(active_notes.size() - 1, -1, -1):
 		var note :Node2D = active_notes[i]
 		
-		if note.time == last_note_time:
+		if note.time == last_note_time and note.type != &"hold":
 			note.global_position.y = last_note_pos
-			if note.type == &"hold":
-				note.end.global_position.y = line_y - calculate_distance(music_time, note.end_time)
-				note.body.scale.y = (note.global_position.y - note.end.global_position.y) / 100.0
 		else:
 			update_note(note)
 			last_note_time = note.time
@@ -189,14 +155,11 @@ func update_note(note: Node2D) -> void:
 		&"tap":
 			note.global_position.y = line_y - calculate_distance(music_time, note.time)
 		&"hold":
+			note.global_position.y = line_y - calculate_distance(music_time, note.time)
 			if note.holding and note.time < music_time:
-				note.global_position.y = line_y
-				note.time = music_time
+				note.set_length(line_y - calculate_distance(music_time, note.end_time), line_y)
 			else:
-				note.global_position.y = line_y - calculate_distance(music_time, note.time)
-			
-			note.end.global_position.y = line_y - calculate_distance(music_time, note.end_time)
-			note.body.scale.y = (note.global_position.y - note.end.global_position.y) / 100.0
+				note.set_length(line_y - calculate_distance(music_time, note.end_time))
 	
 	
 ## from_time->to_time之间音符移动的距离
@@ -229,7 +192,6 @@ func calculate_distance(from_time: float, to_time: float) -> float:
 ## 回收对象
 func recycle_expired_notes() -> void:
 	for i in active_notes.size():
-		if i > 20: break
 		var note :Node2D = active_notes[i]
 		var expired_time :float = music_time - JUDGE_WINDOW if !auto_play else music_time
 		match note.type:
@@ -246,7 +208,7 @@ func recycle_expired_notes() -> void:
 						note.holding = true
 					if !note.hited: note.modulate.a = 0.5
 				
-				if note.end_time < expired_time and note.holding or note.end.global_position.y > 1080.0:
+				if(note.end_time < expired_time and note.holding) or (note.end.global_position.y > 1080.0):
 					expired_notes.append(note)
 		
 	while expired_notes.size() > 0:
@@ -319,6 +281,7 @@ func load_beatmap(_chart_path :String) -> Error:
 	beatmap_temp_data = null
 	
 	key_quantity = beatmap_data[&"CircleSize"]
+	key_map = Global.key_binding[key_quantity]
 	tracks.key_quantity = key_quantity
 	var pos :Vector2 = Vector2(tracks.position.x - tracks.track_H * key_quantity / 2, 0.0)
 	tap_pool.global_position = pos
@@ -380,6 +343,7 @@ func recycle_note(note :Node2D) -> void:
 		&"tap": tap_pool.recycle_object(note)
 		&"hold":
 			note.holding = false
+			note.head.position.y = 0.0
 			hold_pool.recycle_object(note)
 
 

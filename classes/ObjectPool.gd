@@ -1,13 +1,12 @@
 class_name ObjectPool extends Node2D
-## 对象池：预创建对象循环复用，支持最大容量限制与空闲衰减回收
+## 对象池V1 预创建对象循环复用 支持最大容量限制
 
 @export_range(1, 80) var pool_size: int = 10              ## 初始对象池大小
-@export_range(100, 2000) var max_pool_size: int = 1000    ## 最大对象数量
+@export_range(100, 1000) var max_pool_size: int = 1000    ## 最大对象数量
 @export var object_scene: PackedScene                     ## 要创建的对象的场景
-@export_range(0.0, 10.0, 0.1) var decay_interval := 1.0   ## 衰减检查间隔
 
-var pool: Array[Node2D] = []        ## 空闲对象池
-var _total_objects := 0             ## 当前对象总数（含使用中）
+var pool: Array[Node2D] = []           ## 空闲对象池
+var total_objects :int = 0             ## 当前对象总数(含使用中)
 
 ## 初始化对象池并把自己注册到管理器名单
 func _ready() -> void:
@@ -18,12 +17,12 @@ func _ready() -> void:
 	if is_instance_valid(PoolManager):
 		PoolManager.register_object_pool(self)
 	init_pool()
-	
 
 ## 在节点离开树前注销名单
 func _exit_tree() -> void:
 	if is_instance_valid(PoolManager):
 		PoolManager.unregister_object_pool(self)
+
 
 ## 初始化对象池
 func init_pool() -> void:
@@ -35,24 +34,24 @@ func init_pool() -> void:
 		node.process_mode = Node.PROCESS_MODE_DISABLED
 		add_child(node)
 		pool[i] = node
-	_total_objects = pool_size
+	total_objects = pool_size
 
 ## 清空对象池(释放所有对象)
 func clear_pool() -> void:
 	pool.clear()
 	for child in get_children():
 		child.queue_free()
-	_total_objects = 0
+	total_objects = 0
+
 
 ## 获取一个对象
 func acquire_object() -> Node2D:
 	var node: Node2D
-	
 	if pool.is_empty():
-		if _total_objects < max_pool_size:
+		if total_objects < max_pool_size:
 			node = object_scene.instantiate()
 			add_child(node)
-			_total_objects += 1
+			total_objects += 1
 		else: return null
 	else:
 		node = pool.pop_back()
@@ -72,6 +71,7 @@ func recycle_object(node: Node2D) -> void:
 	node.modulate = Color.WHITE
 	
 	pool.push_back(node)
+
 
 ## 回收全部对象
 func recycle_objects() -> void:

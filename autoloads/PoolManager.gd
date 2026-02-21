@@ -1,7 +1,7 @@
 extends Node
 ## 用于管理和获取所有对象池的全局节点
 
-## 对象池名单 储存所有对象池指针用于获取 {池名 : ObjectPool 实例}
+## 对象池名单 储存所有对象池指针用于获取地址 {池名 : ObjectPool实例}
 var object_pools :Dictionary[StringName, ObjectPool] = {}
 
 ## 注册对象池名单
@@ -14,7 +14,7 @@ func register_object_pool(object_pool :ObjectPool) -> void:
 func unregister_object_pool(object_pool :ObjectPool) -> void:
 	object_pools.erase(object_pool.name)
 
-## 以名称获取对象池
+## 以名称获取对象池地址
 func get_object_pool(pool_name: StringName) -> ObjectPool:
 	return object_pools.get(pool_name)
 

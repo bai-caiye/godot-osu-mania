@@ -30,6 +30,7 @@ driver/output_latency=5
 
 SongLoader="*res://autoloads/SongLoader.gd"
 PoolManager="*uid://1q2lgt5iajjy"
+Global="*uid://dwxsbumufkwiw"
 
 [debug]
 

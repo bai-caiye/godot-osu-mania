@@ -54,7 +54,6 @@ position = Vector2(960, 0)
 [node name="TapNotePool" type="Node2D" parent="Notes" unique_id=856678103]
 script = ExtResource("3_kelw5")
 pool_size = 30
-max_pool_size = 2000
 object_scene = ExtResource("4_5i0tg")
 metadata/_custom_type_script = "uid://d1yvrkddhp5ak"
 
