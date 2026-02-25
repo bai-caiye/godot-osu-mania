@@ -1,5 +1,5 @@
 class_name ObjectPool extends Node2D
-## 对象池V1 预创建对象循环复用 支持最大容量限制
+## 对象池V1 预创建对象循环复用 仅支持最大容量限制
 
 @export_range(1, 80) var pool_size: int = 10              ## 初始对象池大小
 @export_range(100, 1000) var max_pool_size: int = 1000    ## 最大对象数量
@@ -66,12 +66,15 @@ func recycle_object(node: Node2D) -> void:
 	
 	node.visible = false
 	node.process_mode = PROCESS_MODE_DISABLED
-	node.position = Vector2.ZERO
-	node.scale = Vector2.ONE
-	node.modulate = Color.WHITE
+	init_object(node)
 	
 	pool.push_back(node)
 
+## 回收时初始化对象(拓写时请改动这个方法)
+func init_object(node :Node2D) -> void:
+	node.position = Vector2.ZERO
+	node.scale = Vector2.ONE
+	node.modulate = Color.WHITE
 
 ## 回收全部对象
 func recycle_objects() -> void:

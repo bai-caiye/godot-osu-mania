@@ -31,12 +31,6 @@ func load_osz(file_paths:PackedStringArray) -> void:
 	osz_loaded.emit()
 
 
-## 获取所有曲包以及谱面
-func get_songs() -> Array[Song]:
-	#待写
-	return []
-
-
 ## 根据所选谱面(chart)返回beatmap(包含音乐和图片的谱面)
 func load_beatmap(chart_path :String) -> Beatmap:
 	if chart_path.get_extension() != "osu" or!FileAccess.file_exists(chart_path):

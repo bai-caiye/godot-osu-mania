@@ -1,7 +1,7 @@
 extends Node
 ## 全局设置
 
-@export var speed :float = 1800.0  ## 整体速度
+@export var speed :float = 1500.0  ## 整体速度
 @export var offset :float = 0.0    ## 整体偏移
 
 ## 键位映射
