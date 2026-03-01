@@ -57,8 +57,7 @@ func _ready() -> void:
 	pause = true
 	line_y = tracks.line_Y
 	
-	if chart_path.is_empty(): return
-	load_beatmap(chart_path)
+	if load_beatmap(chart_path): return
 	start()
 	
 func start() -> void:
@@ -274,6 +273,7 @@ func load_beatmap(_chart_path :String) -> Error:
 	var beatmap_temp_data = SongLoader.load_beatmap_data(beatmap.chart)
 	if beatmap_temp_data.is_empty(): printerr("谱面信息读取错误"); return ERR_UNAVAILABLE
 	
+	if !is_instance_valid(beatmap.music): return ERR_UNAVAILABLE
 	bg.texture = beatmap.image
 	music.stream = beatmap.music
 	chart = beatmap.chart
@@ -317,7 +317,7 @@ func load_notes_data(_chart: PackedStringArray) -> void:
 		if line.is_empty():
 			index += 1
 			continue
-			
+		
 		var note_data :Dictionary = {
 			&"type": conversion_type(line.get_slice(",", 3)),
 			&"time": c_time(line.get_slice(",", 2)) + global_offset + offset,
@@ -338,14 +338,11 @@ func acquire_note(type :StringName) -> Node2D:
 
 ## 放回note
 func recycle_note(note :Node2D) -> void:
-	note.hited = false
 	match note.type:
 		&"tap": tap_pool.recycle_object(note)
 		&"hold":
-			note.holding = false
 			note.head.position.y = 0.0
 			hold_pool.recycle_object(note)
-
 
 func conversion_type(x) -> StringName:
 	match int(x):
@@ -355,7 +352,7 @@ func conversion_type(x) -> StringName:
 
 func conversion_track(x) -> int:
 	x = int(x)
-	match key_quantity: 
+	match key_quantity:
 		4: return (x - 64) / 128
 		7: return (x - 35) / 73
 		_: return int(float(x * key_quantity) / 512.0)

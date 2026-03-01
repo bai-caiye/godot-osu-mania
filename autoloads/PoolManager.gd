@@ -7,7 +7,7 @@ var object_pools :Dictionary[StringName, ObjectPool] = {}
 ## 注册对象池名单
 func register_object_pool(object_pool :ObjectPool) -> void:
 	if object_pools.has(object_pool.name):
-		push_warning("同名对象池已存在") ;return
+		assert(false, "%s同名对象池已存在" % object_pool.name) ;return
 	object_pools[object_pool.name] = object_pool
 
 ## 注销对象池名单
@@ -18,7 +18,7 @@ func unregister_object_pool(object_pool :ObjectPool) -> void:
 func get_object_pool(pool_name: StringName) -> ObjectPool:
 	return object_pools.get(pool_name)
 
-## 创建对象池并添加到子级和object_pools
+## 创建对象池并添加到当前场景
 func create_object_pool(pool_name :StringName, pool_size :int, scene :PackedScene) -> ObjectPool:
 	var object_pool :ObjectPool = ObjectPool.new()
 	object_pool.name = pool_name

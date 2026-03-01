@@ -18,6 +18,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("2_33cqm")
+chart_path = "D:/Project/Godot project/godot-osu-mania/test/1957541 NAKISO - DOKUZU/NAKISO - DOKUZU (BruhMomentum97) [Scum of the Universe].osu"
 auto_play = true
 bg = NodePath("BG")
 music = NodePath("Music")
@@ -53,13 +54,12 @@ position = Vector2(960, 0)
 
 [node name="TapNotePool" type="Node2D" parent="Notes" unique_id=856678103]
 script = ExtResource("3_kelw5")
-pool_size = 30
-object_scene = ExtResource("4_5i0tg")
+_object_scene = ExtResource("4_5i0tg")
 metadata/_custom_type_script = "uid://d1yvrkddhp5ak"
 
 [node name="HoldNotePool" type="Node2D" parent="Notes" unique_id=827082849]
 script = ExtResource("3_kelw5")
-object_scene = ExtResource("5_bdhmt")
+_object_scene = ExtResource("5_bdhmt")
 metadata/_custom_type_script = "uid://d1yvrkddhp5ak"
 
 [node name="Music" type="AudioStreamPlayer" parent="." unique_id=1590063657]

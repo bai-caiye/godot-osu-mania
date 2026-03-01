@@ -4,7 +4,7 @@ class_name HoldNote extends Node2D
 @export var body: Sprite2D
 @export var end: Sprite2D
 
-var type :StringName = &"hold"
+const type :StringName = &"hold"
 var time :float = 0.0       ## 打击时机
 var track :int = 0          ## 在哪条轨道上
 var end_time :float = 0.0   ## hold的持续时间
@@ -16,3 +16,7 @@ func set_length(end_pos :float, head_pos :float = head.global_position.y) -> voi
 	head.global_position.y = head_pos
 	end.global_position.y = end_pos
 	body.scale.y = (head_pos - end_pos) / 100.0
+
+func _recycle_init() -> void:
+	hited = false
+	holding = false

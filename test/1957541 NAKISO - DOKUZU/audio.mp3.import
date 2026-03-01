@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://cbn4ve7yl716l"
+path="res://.godot/imported/audio.mp3-68b9b5b4354bdff2f84ccf96eee9a8db.mp3str"
+
+[deps]
+
+source_file="res://test/1957541 NAKISO - DOKUZU/audio.mp3"
+dest_files=["res://.godot/imported/audio.mp3-68b9b5b4354bdff2f84ccf96eee9a8db.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4
