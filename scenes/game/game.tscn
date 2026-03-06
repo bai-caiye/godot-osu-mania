@@ -6,17 +6,11 @@
 [ext_resource type="Script" uid="uid://noqgsys81fw7" path="res://scenes/game/progress_bar.gd" id="3_lnu2h"]
 [ext_resource type="PackedScene" uid="uid://criwi1eyinjkn" path="res://scenes/game/note/tap_note.tscn" id="4_5i0tg"]
 [ext_resource type="PackedScene" uid="uid://cbedfe6gpqr64" path="res://scenes/game/note/hold_note.tscn" id="5_bdhmt"]
+[ext_resource type="PackedScene" uid="uid://b8usxhka2qd1r" path="res://test/test_menu.tscn" id="7_bdhmt"]
 
-[node name="Controller" type="Control" unique_id=1751518332 node_paths=PackedStringArray("bg", "music", "tracks", "lead_in_timer", "progress_bar", "tap_pool", "hold_pool")]
+[node name="Controller" type="Node2D" unique_id=1466468910 node_paths=PackedStringArray("bg", "music", "tracks", "lead_in_timer", "progress_bar", "tap_pool", "hold_pool")]
 process_mode = 3
 process_priority = 1
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
 script = ExtResource("2_33cqm")
 chart_path = "D:/Project/Godot project/godot-osu-mania/test/1957541 NAKISO - DOKUZU/NAKISO - DOKUZU (BruhMomentum97) [Scum of the Universe].osu"
 auto_play = true
@@ -32,7 +26,7 @@ metadata/_edit_lock_ = true
 [node name="BG" type="TextureRect" parent="." unique_id=1366531993]
 process_mode = 4
 modulate = Color(0.5, 0.5, 0.5, 1)
-layout_mode = 1
+top_level = true
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -46,9 +40,9 @@ metadata/_edit_lock_ = true
 [node name="Tracks" parent="." unique_id=1244043121 instance=ExtResource("2_dbls1")]
 process_mode = 4
 process_priority = 2
-layout_mode = 1
+top_level = true
 
-[node name="Notes" type="Node2D" parent="." unique_id=1598348401]
+[node name="Notes" type="MultiMeshInstance2D" parent="." unique_id=448185560]
 z_index = 5
 position = Vector2(960, 0)
 
@@ -72,8 +66,8 @@ one_shot = true
 
 [node name="ProgressBar" type="ColorRect" parent="." unique_id=479438872 node_paths=PackedStringArray("music")]
 process_mode = 1
+top_level = true
 custom_minimum_size = Vector2(0, 3)
-layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
@@ -86,3 +80,5 @@ color = Color(1, 1, 1, 0.5882353)
 script = ExtResource("3_lnu2h")
 music = NodePath("../Music")
 metadata/_edit_lock_ = true
+
+[node name="TestMenu" parent="." unique_id=179995671 instance=ExtResource("7_bdhmt")]

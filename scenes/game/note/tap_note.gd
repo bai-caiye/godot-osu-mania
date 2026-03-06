@@ -6,4 +6,5 @@ var track :int = 0          ## 在哪条轨道上
 var hited :bool = false
 
 func _recycle_init() -> void:
+	visible = false
 	hited = false

@@ -1,4 +1,4 @@
-extends Control
+extends Node2D
 ##加载音符控制音符移动的脚本
 @export_group("Option")
 @export_global_file("*.osu") var chart_path: String

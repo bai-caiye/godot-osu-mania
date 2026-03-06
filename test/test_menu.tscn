@@ -1,9 +1,10 @@
 [gd_scene format=3 uid="uid://b8usxhka2qd1r"]
 
-[ext_resource type="Script" uid="uid://b7rakq1sjx0r4" path="res://scenes/UI/test_menu.gd" id="1_3eeys"]
+[ext_resource type="Script" uid="uid://b7rakq1sjx0r4" path="res://test/test_menu.gd" id="1_3eeys"]
 
 [node name="TestMenu" type="Control" unique_id=179995671 node_paths=PackedStringArray("fps", "v_box")]
 process_mode = 3
+top_level = true
 z_index = 10
 layout_mode = 3
 anchors_preset = 15
