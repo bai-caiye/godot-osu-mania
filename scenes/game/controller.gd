@@ -98,7 +98,7 @@ func _process(delta: float) -> void:
 		var music_t :float = get_music_position()
 		var music_dt :float = music_t - music_time
 		if music_dt > 0.015 or music_dt < -0.015:
-			music_time = get_music_position()
+			music_time = music_t
 	
 	spawn_notes()
 	update_active_notes()

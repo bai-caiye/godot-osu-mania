@@ -99,6 +99,7 @@ func recycle_object(node: Node) -> void:
 	
 	node.visible = false
 	node.process_mode = PROCESS_MODE_DISABLED
+	node.reparent(self)
 	if node.has_method("recycle_init"): node.recycle_init()
 	
 	_active_objects.erase(node)
@@ -109,6 +110,7 @@ func recycle_all_object() -> void:
 	for node in _active_objects.duplicate():
 		node.visible = false
 		node.process_mode = PROCESS_MODE_DISABLED
+		node.reparent(self)
 		if node.has_method("recycle_init"): node.recycle_init()
 		_idle_objects.append(node)
 	_active_objects.clear()
