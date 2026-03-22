@@ -10,7 +10,8 @@
 
 [node name="Controller" type="Node2D" unique_id=1466468910 node_paths=PackedStringArray("bg", "music", "tracks", "lead_in_timer", "progress_bar", "tap_pool", "hold_pool")]
 process_mode = 3
-process_priority = 1
+process_priority = -1
+process_physics_priority = -1
 script = ExtResource("2_33cqm")
 chart_path = "D:/Project/Godot project/godot-osu-mania/test/1957541 NAKISO - DOKUZU/NAKISO - DOKUZU (BruhMomentum97) [Scum of the Universe].osu"
 auto_play = true
