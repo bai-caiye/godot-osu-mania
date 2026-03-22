@@ -101,7 +101,7 @@ func recycle_all_object() -> void:
 
 ## 释放对象 一定不要直接free用这个
 func free_object(node :Node) -> void:
-	if node.has_meta(&"father_pool") and node.get_meta(&"father_pool", null) == self:
+	if !node.has_meta(&"father_pool") or node.get_meta(&"father_pool", null) != self:
 		return
 	node.queue_free()
 	nodes.erase(node)
