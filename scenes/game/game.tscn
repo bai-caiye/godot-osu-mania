@@ -49,12 +49,14 @@ position = Vector2(960, 0)
 
 [node name="TapNotePool" type="Node2D" parent="Notes" unique_id=856678103]
 script = ExtResource("3_kelw5")
-_object_scene = ExtResource("4_5i0tg")
+object_scene = ExtResource("4_5i0tg")
+pool_size = 30
 metadata/_custom_type_script = "uid://d1yvrkddhp5ak"
 
 [node name="HoldNotePool" type="Node2D" parent="Notes" unique_id=827082849]
 script = ExtResource("3_kelw5")
-_object_scene = ExtResource("5_bdhmt")
+object_scene = ExtResource("5_bdhmt")
+pool_size = 15
 metadata/_custom_type_script = "uid://d1yvrkddhp5ak"
 
 [node name="Music" type="AudioStreamPlayer" parent="." unique_id=1590063657]
