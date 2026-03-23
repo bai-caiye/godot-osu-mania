@@ -113,7 +113,7 @@ func spawn_notes() -> void:
 		if note_data[&"time"] - music_time > note_data[&"lead_time"]: break
 		
 		var note: Node2D = acquire_note(note_data[&"type"])
-		note.time = note_data[&"time"] 
+		note.time = note_data[&"time"]
 		note.track = note_data[&"track_index"]
 		note.scale.x = tracks.track_H / 100.0
 		note.position.x = note.track * tracks.track_H

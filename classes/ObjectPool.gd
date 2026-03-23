@@ -37,7 +37,6 @@ func init_pool() -> void:
 	
 func _create_node() -> Node2D:
 	var node: Node2D = object_scene.instantiate()
-	node.set_meta(&"father_pool", self)
 	node.visible = false
 	node.process_mode = PROCESS_MODE_DISABLED
 	node.set_physics_process(false)
