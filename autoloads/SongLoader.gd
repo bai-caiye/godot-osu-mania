@@ -37,8 +37,13 @@ func load_beatmap(chart_path :String) -> Beatmap:
 		printerr("加载beatmap失败: 路径文件错误"); return Beatmap.new()
 	
 	var song_path :String = chart_path.get_base_dir()
+	var file = FileAccess.open(chart_path, FileAccess.READ)
+	var content = file.get_as_text()
+	file.close()
+	
+	content = content.replace("\r", "")
 	var beatmap :Beatmap = Beatmap.new()
-	beatmap.chart = FileAccess.get_file_as_string(chart_path).split("\r\n")
+	beatmap.chart = content.split("\n")
 	
 	if beatmap.chart[0] != "osu file format v14":
 		printerr("加载beatmap失败: 不支持该谱面版本"); return Beatmap.new()
