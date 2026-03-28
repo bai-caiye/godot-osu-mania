@@ -33,14 +33,14 @@ var note_quantity: int = 0              ## 音符总数
 var notes_data :Array[Dictionary] = []  ## note数据用于生成note
 var notes_data_index: int = 0
 var active_notes: Array[Node2D] = []    ## 活动的音符 移动note
-var judgment_queue :Array[Node2D] = []  ## 判定区 用来存进入判定区间的note
 var expired_notes :Array[Node2D] = []   ## 回收缓存 用于存放要在帧末回收的note
+var judgment_list :Array[Array] = []  ## 判定区 用来存进入判定区间的note
 
-var line_y: float             ## 判定线的高度
-var timing_points: Array      ## 时间点数组
+var line_y: float = 800.0           ## 判定线的高度
+var timing_points: Array = []       ## 时间点数组
 var current_timing_index: int = -1
-var music_time: float = 0.0   ## 当前音乐播放时间
-var offset :float = 0.1      ## 默认偏移
+var music_time: float = 0.0         ## 当前音乐播放时间
+var offset :float = 0.1             ## 默认偏移
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if event.pressed and !event.is_echo():
@@ -77,8 +77,8 @@ func restart(_chart_path :String) -> void:
 	notes_data_index = 0
 	current_timing_index = -1
 	#回收全部note
-	for i in active_notes.size():
-		recycle_note(active_notes[i])
+	tap_pool.recycle_all_nodes()
+	hold_pool.recycle_all_nodes()
 	active_notes.clear()
 	
 	if chart_path != _chart_path:
@@ -283,6 +283,10 @@ func load_beatmap(_chart_path :String) -> Error:
 	key_quantity = beatmap_data[&"CircleSize"]
 	key_map = Global.key_binding[key_quantity]
 	tracks.key_quantity = key_quantity
+	
+	for i in key_quantity:
+		judgment_list.append([])
+	
 	var pos :Vector2 = Vector2(tracks.position.x - tracks.track_H * key_quantity / 2, 0.0)
 	tap_pool.global_position = pos
 	hold_pool.global_position = pos
@@ -332,17 +336,17 @@ func load_notes_data(_chart: PackedStringArray) -> void:
 ## 取出note
 func acquire_note(type :StringName) -> Node2D:
 	match type:
-		&"tap": return tap_pool.acquire_object()
-		&"hold": return hold_pool.acquire_object()
+		&"tap": return tap_pool.acquire_node()
+		&"hold": return hold_pool.acquire_node()
 	return null
 
 ## 放回note
 func recycle_note(note :Node2D) -> void:
 	match note.type:
-		&"tap": tap_pool.recycle_object(note)
+		&"tap": tap_pool.recycle_node(note)
 		&"hold":
 			note.head.position.y = 0.0
-			hold_pool.recycle_object(note)
+			hold_pool.recycle_node(note)
 
 func conversion_type(x) -> StringName:
 	match int(x):
