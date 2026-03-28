@@ -73,7 +73,6 @@ func acquire_node() -> Node2D:
 	else:
 		node = idle_pool.pop_back()
 	
-	node.acquire_init()
 	node.visible = true
 	node.process_mode = PROCESS_MODE_ALWAYS
 	node.set_physics_process(true)

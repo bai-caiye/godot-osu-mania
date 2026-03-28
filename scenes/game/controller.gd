@@ -27,7 +27,6 @@ var chart: PackedStringArray  ## 谱面文本
 var beatmap_data: Dictionary  ## 谱面信息
 
 var key_quantity: int = 4     ## 有多少key
-var key_map :Dictionary = {}
 
 var note_quantity: int = 0              ## 音符总数
 var notes_data :Array[Dictionary] = []  ## note数据用于生成note
@@ -41,6 +40,7 @@ var timing_points: Array = []       ## 时间点数组
 var current_timing_index: int = -1
 var music_time: float = 0.0         ## 当前音乐播放时间
 var offset :float = 0.1             ## 默认偏移
+
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if event.pressed and !event.is_echo():
@@ -138,7 +138,7 @@ func update_active_notes() -> void:
 	var last_note_time :float = 0.0
 	var last_note_pos :float = 0.0
 	
-	for i in range(active_notes.size() - 1, -1, -1):
+	for i in active_notes.size():
 		var note :Node2D = active_notes[i]
 		
 		if note.time == last_note_time and note.type != &"hold":
@@ -147,7 +147,7 @@ func update_active_notes() -> void:
 			update_note(note)
 			last_note_time = note.time
 			last_note_pos = note.global_position.y
-
+		
 
 func update_note(note: Node2D) -> void:
 	match note.type:
@@ -281,7 +281,6 @@ func load_beatmap(_chart_path :String) -> Error:
 	beatmap_temp_data = null
 	
 	key_quantity = beatmap_data[&"CircleSize"]
-	key_map = Global.key_binding[key_quantity]
 	tracks.key_quantity = key_quantity
 	
 	for i in key_quantity:
@@ -342,6 +341,7 @@ func acquire_note(type :StringName) -> Node2D:
 
 ## 放回note
 func recycle_note(note :Node2D) -> void:
+	judgment_list[note.track].erase(note)
 	match note.type:
 		&"tap": tap_pool.recycle_node(note)
 		&"hold":
