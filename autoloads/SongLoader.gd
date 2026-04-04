@@ -64,7 +64,7 @@ func load_beatmap(chart_path :String) -> Beatmap:
 ## 加载曲目信息 可以传谱面或谱面文件路径
 func load_beatmap_data(chart) -> Dictionary:
 	if !chart is PackedStringArray and FileAccess.file_exists(chart):
-		chart = FileAccess.get_file_as_string(chart).split("\r\n")
+		chart = FileAccess.get_file_as_string(chart).replace("\r", "").split("\n")
 	elif chart.is_empty():
 		printerr("读取谱面信息失败: 参数不正确")
 		return {}

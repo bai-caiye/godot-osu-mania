@@ -3,6 +3,8 @@ extends Node2D
 @export_group("Option")
 @export_global_file("*.osu") var chart_path: String
 @export var auto_play :bool = false
+@export var speed: float = 1500         ## 整体速度
+@export var offset: float = 0.0         ## 整体偏移
 
 @export_group("Node")
 @export var bg: TextureRect  ## 背景图片
@@ -15,8 +17,7 @@ extends Node2D
 
 const JUDGE_WINDOW :float = 0.09
 
-var speed: float = Global.speed            ## 整体速度
-var global_offset: float = Global.offset   ## 整体偏移
+
 var pause :bool = false:
 	set(v):
 		pause = v
@@ -39,7 +40,7 @@ var line_y: float = 800.0           ## 判定线的高度
 var timing_points: Array = []       ## 时间点数组
 var current_timing_index: int = -1
 var music_time: float = 0.0         ## 当前音乐播放时间
-var offset :float = 0.0             ## 默认偏移
+var chart_offset :float = 0.0             ## 默认偏移
 
 
 func _unhandled_key_input(event: InputEvent) -> void:
@@ -56,7 +57,7 @@ func _ready() -> void:
 	set_process_input(false)
 	pause = true
 	line_y = tracks.line_Y
-	
+
 	if load_beatmap(chart_path): return
 	start()
 	
@@ -323,8 +324,8 @@ func load_notes_data(_chart: PackedStringArray) -> void:
 		
 		var note_data :Dictionary = {
 			&"type": conversion_type(line.get_slice(",", 3)),
-			&"time": c_time(line.get_slice(",", 2)) + global_offset + offset,
-			&"end_time": c_time(line.get_slice(",", 5).get_slice(":", 0)) + global_offset + offset,
+			&"time": c_time(line.get_slice(",", 2)) - offset - chart_offset,
+			&"end_time": c_time(line.get_slice(",", 5).get_slice(":", 0)) - offset - chart_offset,
 			&"track_index": conversion_track(line.get_slice(",", 0)),
 			&"lead_time": 0.0
 		}

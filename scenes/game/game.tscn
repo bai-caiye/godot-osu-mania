@@ -15,6 +15,7 @@ process_physics_priority = -1
 script = ExtResource("2_33cqm")
 chart_path = "res://test/song/NAKISO - DOKUZU/NAKISO - DOKUZU(baicaiye) [IN].osu"
 auto_play = true
+offset = -0.1
 bg = NodePath("BG")
 music = NodePath("Music")
 tracks = NodePath("Tracks")

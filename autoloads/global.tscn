@@ -4,4 +4,3 @@
 
 [node name="Global" type="Node" unique_id=2082386776]
 script = ExtResource("1_5eb1e")
-speed = 2000.0
