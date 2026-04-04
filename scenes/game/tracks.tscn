@@ -24,7 +24,7 @@ key_quantity = 4
 track_H = 70.0
 track_A = 0.9
 line_Y = 850.0
-tracks = [NodePath(""), NodePath(""), NodePath(""), NodePath(""), NodePath(""), NodePath(""), NodePath(""), NodePath(""), NodePath(""), NodePath("")]
+tracks = [NodePath("tracks/track1"), NodePath("tracks/track2"), NodePath("tracks/track3"), NodePath("tracks/track4"), NodePath("tracks/track5"), NodePath("tracks/track6"), NodePath("tracks/track7"), NodePath("tracks/track8"), NodePath("tracks/track9"), NodePath("tracks/track10")]
 line = NodePath("Line")
 
 [node name="tracks" type="HBoxContainer" parent="." unique_id=2060329434]
