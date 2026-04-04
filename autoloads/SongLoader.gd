@@ -45,9 +45,7 @@ func load_beatmap(chart_path :String) -> Beatmap:
 	var beatmap :Beatmap = Beatmap.new()
 	beatmap.chart = content.split("\n")
 	
-	if beatmap.chart[0] != "osu file format v14":
-		printerr("加载beatmap失败: 不支持该谱面版本"); return Beatmap.new()
-	elif beatmap.chart[9][-1] != "3":
+	if beatmap.chart[9][-1] != "3":
 		printerr("加载beatmap失败: 不支持非mania模式"); return Beatmap.new()
 	
 	beatmap.music = load_audio(
@@ -94,7 +92,7 @@ func load_beatmap_data(chart) -> Dictionary:
 	return beatmap_data
 
 
-## 加载图像并返回ImageTexture
+## 加载图像并返回Texture
 func load_image(path: String) -> ImageTexture:
 	if !FileAccess.file_exists(path): printerr("路径图像文件不存在") ;return ImageTexture.new()
 	var image :Image = Image.load_from_file(path)
@@ -104,10 +102,12 @@ func load_image(path: String) -> ImageTexture:
 ## 加载音频文件返回流
 func load_audio(path: String) -> AudioStream:
 	if !FileAccess.file_exists(path): printerr("路径音频文件不存在"); return AudioStream.new()
-	var audio
+	var audio :AudioStream
+	
 	match path.get_extension():
 		"mp3": audio = AudioStreamMP3.new()
 		"wav": audio = AudioStreamWAV.new()
 		"ogg": return AudioStreamOggVorbis.load_from_file(path)
+	
 	audio.data = FileAccess.get_file_as_bytes(path)
 	return audio

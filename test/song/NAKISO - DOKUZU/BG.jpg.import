@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d4gej33016lf8"
-path="res://.godot/imported/dokuzu.jpg-9b204cd3033a12b613c85229e54c8d83.ctex"
+uid="uid://ctoporv1m0gd4"
+path="res://.godot/imported/BG.jpg-8ec8f678acb7bcd29f0af7efd56db7ae.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://test/1957541 NAKISO - DOKUZU/dokuzu.jpg"
-dest_files=["res://.godot/imported/dokuzu.jpg-9b204cd3033a12b613c85229e54c8d83.ctex"]
+source_file="res://test/song/NAKISO - DOKUZU/BG.jpg"
+dest_files=["res://.godot/imported/BG.jpg-8ec8f678acb7bcd29f0af7efd56db7ae.ctex"]
 
 [params]
 

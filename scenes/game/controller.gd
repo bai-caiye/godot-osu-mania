@@ -39,7 +39,7 @@ var line_y: float = 800.0           ## 判定线的高度
 var timing_points: Array = []       ## 时间点数组
 var current_timing_index: int = -1
 var music_time: float = 0.0         ## 当前音乐播放时间
-var offset :float = 0.1             ## 默认偏移
+var offset :float = 0.0             ## 默认偏移
 
 
 func _unhandled_key_input(event: InputEvent) -> void:
@@ -355,11 +355,7 @@ func conversion_type(x) -> StringName:
 
 
 func conversion_track(x) -> int:
-	x = int(x)
-	match key_quantity:
-		4: return (x - 64) / 128
-		7: return (x - 35) / 73
-		_: return int(float(x * key_quantity) / 512.0)
+	return int(float(int(x) * key_quantity) / 512.0)
 
 
 func c_time(time) -> float:
