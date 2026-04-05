@@ -4,7 +4,7 @@
 目前还未完善不能游玩
 
 导入谱面
-直接把https://osu.ppy.sh/beatmapsets?m=3下载的.osz拖入窗口即可 会自动保存到用户文件夹
+直接把https://osu.ppy.sh/beatmapsets?m=3 下载的.osz拖入窗口即可 会自动保存到用户文件夹
 
 在Game场景里点击根节点 属性那里选择 用户文件夹/songs/曲包/你要玩的谱面
 
