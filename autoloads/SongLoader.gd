@@ -51,13 +51,14 @@ func load_beatmap(chart_path :String) -> Beatmap:
 	beatmap.music = load_audio(
 		song_path +"/"+ beatmap.chart[beatmap.chart.find("[General]")+1].get_slice(": ",1))
 	
-	var img_regex :RegEx = RegEx.create_from_string(r'^\d+,\d+,"([^"]+)"')
-	for line in beatmap.chart:
-		if img_regex.search(line):
-			var img_name :String = img_regex.search(line).get_string(1)
-			beatmap.image = load_image(song_path.path_join(img_name))
+	var i :int = beatmap.chart.find("[Events]")+1
+	while beatmap.chart[i] != "" and i < beatmap.chart.size():
+		if beatmap.chart[i].contains(".jpg"):
+			beatmap.image = load_image(
+			song_path.path_join(
+				beatmap.chart[i].get_slice(",",2).trim_prefix('"').trim_suffix('"')))
 			break
-	
+		i += 1
 	return beatmap
 
 
