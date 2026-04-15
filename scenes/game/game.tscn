@@ -6,14 +6,13 @@
 [ext_resource type="Script" uid="uid://noqgsys81fw7" path="res://scenes/game/progress_bar.gd" id="3_lnu2h"]
 [ext_resource type="PackedScene" uid="uid://criwi1eyinjkn" path="res://scenes/game/note/tap_note.tscn" id="4_5i0tg"]
 [ext_resource type="PackedScene" uid="uid://cbedfe6gpqr64" path="res://scenes/game/note/hold_note.tscn" id="5_bdhmt"]
-[ext_resource type="PackedScene" uid="uid://b8usxhka2qd1r" path="res://test/test_menu.tscn" id="7_bdhmt"]
 
 [node name="Controller" type="Node2D" unique_id=1466468910 node_paths=PackedStringArray("bg", "music", "tracks", "lead_in_timer", "progress_bar", "tap_pool", "hold_pool")]
 process_mode = 3
 process_priority = -1
 process_physics_priority = -1
 script = ExtResource("2_33cqm")
-chart_path = "D:/Project/Godot project/godot-osu-mania/test/song/NAKISO - DOKUZU/NAKISO - DOKUZU(baicaiye) [IN].osu"
+chart_path = "D:/Project/Godot project/godot-osu-mania/test/351345 Randy Mortimer - Penguin (Pinnacle Remix)/Randy Mortimer - Penguin (Pinnacle Remix) (Cuppp) [gemboyong's 4K].osu"
 auto_play = true
 bg = NodePath("BG")
 music = NodePath("Music")
@@ -50,12 +49,13 @@ position = Vector2(960, 0)
 [node name="TapNotePool" type="Node2D" parent="Notes" unique_id=856678103]
 script = ExtResource("3_kelw5")
 scene = ExtResource("4_5i0tg")
+pool_size = 200
 metadata/_custom_type_script = "uid://d1yvrkddhp5ak"
 
 [node name="HoldNotePool" type="Node2D" parent="Notes" unique_id=827082849]
 script = ExtResource("3_kelw5")
 scene = ExtResource("5_bdhmt")
-pool_size = 20
+pool_size = 100
 metadata/_custom_type_script = "uid://d1yvrkddhp5ak"
 
 [node name="Music" type="AudioStreamPlayer" parent="." unique_id=1590063657]
@@ -82,5 +82,3 @@ color = Color(1, 1, 1, 0.5882353)
 script = ExtResource("3_lnu2h")
 music = NodePath("../Music")
 metadata/_edit_lock_ = true
-
-[node name="TestMenu" parent="." unique_id=179995671 instance=ExtResource("7_bdhmt")]

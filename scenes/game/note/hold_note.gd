@@ -18,6 +18,7 @@ func set_length(end_pos :float, head_pos :float = head.global_position.y) -> voi
 	body.scale.y = (head_pos - end_pos) / 100.0
 
 func reset() -> void:
+	modulate = Color.WHITE
 	visible = false
 	hited = false
 	holding = false
