@@ -13,7 +13,7 @@ process_mode = 3
 process_priority = -1
 process_physics_priority = -1
 script = ExtResource("2_33cqm")
-chart_path = "C:/godot project/osu-mania/test/song/NAKISO - DOKUZU/NAKISO - DOKUZU(baicaiye) [IN].osu"
+chart_path = "D:/Project/Godot project/godot-osu-mania/test/song/NAKISO - DOKUZU/NAKISO - DOKUZU(baicaiye) [IN].osu"
 auto_play = true
 bg = NodePath("BG")
 music = NodePath("Music")
@@ -43,20 +43,19 @@ process_mode = 4
 process_priority = 2
 top_level = true
 
-[node name="Notes" type="MultiMeshInstance2D" parent="." unique_id=448185560]
+[node name="Notes" type="Node2D" parent="." unique_id=583305566]
 z_index = 5
 position = Vector2(960, 0)
 
 [node name="TapNotePool" type="Node2D" parent="Notes" unique_id=856678103]
 script = ExtResource("3_kelw5")
-object_scene = ExtResource("4_5i0tg")
-pool_size = 30
+scene = ExtResource("4_5i0tg")
 metadata/_custom_type_script = "uid://d1yvrkddhp5ak"
 
 [node name="HoldNotePool" type="Node2D" parent="Notes" unique_id=827082849]
 script = ExtResource("3_kelw5")
-object_scene = ExtResource("5_bdhmt")
-pool_size = 15
+scene = ExtResource("5_bdhmt")
+pool_size = 20
 metadata/_custom_type_script = "uid://d1yvrkddhp5ak"
 
 [node name="Music" type="AudioStreamPlayer" parent="." unique_id=1590063657]

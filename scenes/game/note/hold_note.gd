@@ -17,7 +17,7 @@ func set_length(end_pos :float, head_pos :float = head.global_position.y) -> voi
 	end.global_position.y = end_pos
 	body.scale.y = (head_pos - end_pos) / 100.0
 
-func recycle_init() -> void:
+func reset() -> void:
 	visible = false
 	hited = false
 	holding = false
