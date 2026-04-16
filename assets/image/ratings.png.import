@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://qd1ay07yaowf"
-path="res://.godot/imported/hold_body.png-a91719df9f265b9a199ecb3f47ede7a9.ctex"
+uid="uid://bbb0suuio5agg"
+path="res://.godot/imported/ratings.png-dfae19b70a3c56b076039c0d3a068db8.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/image/hold_body.png"
-dest_files=["res://.godot/imported/hold_body.png-a91719df9f265b9a199ecb3f47ede7a9.ctex"]
+source_file="res://assets/image/ratings.png"
+dest_files=["res://.godot/imported/ratings.png-dfae19b70a3c56b076039c0d3a068db8.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://qhij3d8ukqlc"
-path="res://.godot/imported/tap_note.png-1bed2ddac71444f51bb4c57ef83b5aea.ctex"
+uid="uid://qd1ay07yaowf"
+path="res://.godot/imported/hold_body.png-50c007a250ea7eba63a05a39d55f650e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/image/tap_note.png"
-dest_files=["res://.godot/imported/tap_note.png-1bed2ddac71444f51bb4c57ef83b5aea.ctex"]
+source_file="res://assets/image/note/hold_body.png"
+dest_files=["res://.godot/imported/hold_body.png-50c007a250ea7eba63a05a39d55f650e.ctex"]
 
 [params]
 

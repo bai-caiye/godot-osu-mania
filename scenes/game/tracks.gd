@@ -8,8 +8,12 @@ class_name Tracks
 	set(v):
 		key_quantity = clamp(v, 0, 10)
 		for i in tracks.size():
-			if i < key_quantity: tracks[i].visible = true
-			else: tracks[i].visible = false
+			if i < key_quantity:
+				tracks[i].visible = true
+				lights[i].visible = true
+			else:
+				tracks[i].visible = false
+				lights[i].visible = false
 		set_line()
 ##轨道宽度
 @export var track_H :float:
@@ -17,6 +21,9 @@ class_name Tracks
 		track_H = clamp(v, 10, 200)
 		for track in tracks:
 			track.custom_minimum_size.x = track_H
+			
+		for light in lights:
+			light.custom_minimum_size.x = track_H
 		set_line()
 ##轨道透明度
 @export_range(0.0, 1.0) var track_A :float:
@@ -31,6 +38,7 @@ class_name Tracks
 		set_line()
 @export_group("Node")
 @export var tracks :Array[ColorRect]
+@export var lights :Array[TextureRect]
 @export var line: ColorRect
 
 

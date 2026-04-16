@@ -4,13 +4,13 @@
 
 [sub_resource type="Gradient" id="Gradient_yoeob"]
 interpolation_mode = 2
-colors = PackedColorArray(1, 1, 1, 0.69803923, 1, 1, 1, 0)
+colors = PackedColorArray(1, 1, 1, 0.54901963, 1, 1, 1, 0)
 
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_lp400"]
 gradient = SubResource("Gradient_yoeob")
 width = 70
 
-[node name="Tracks" type="Control" unique_id=1231323752 node_paths=PackedStringArray("tracks", "line")]
+[node name="Tracks" type="Control" unique_id=1231323752 node_paths=PackedStringArray("tracks", "lights", "line")]
 layout_mode = 3
 anchors_preset = 13
 anchor_left = 0.5
@@ -25,6 +25,7 @@ track_H = 70.0
 track_A = 0.9
 line_Y = 850.0
 tracks = [NodePath("tracks/track1"), NodePath("tracks/track2"), NodePath("tracks/track3"), NodePath("tracks/track4"), NodePath("tracks/track5"), NodePath("tracks/track6"), NodePath("tracks/track7"), NodePath("tracks/track8"), NodePath("tracks/track9"), NodePath("tracks/track10")]
+lights = [NodePath("Line/lights/TextureRect"), NodePath("Line/lights/TextureRect2"), NodePath("Line/lights/TextureRect3"), NodePath("Line/lights/TextureRect4"), NodePath("Line/lights/TextureRect5"), NodePath("Line/lights/TextureRect6"), NodePath("Line/lights/TextureRect7"), NodePath("Line/lights/TextureRect8"), NodePath("Line/lights/TextureRect9"), NodePath("Line/lights/TextureRect10")]
 line = NodePath("Line")
 
 [node name="tracks" type="HBoxContainer" parent="." unique_id=2060329434]
@@ -132,78 +133,88 @@ grow_vertical = 2
 pivot_offset_ratio = Vector2(0.5, 0)
 mouse_filter = 2
 
-[node name="tracks" type="VBoxContainer" parent="Line" unique_id=1531637555]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -140.0
-offset_top = -1.5
-offset_right = 100.0
-offset_bottom = 278.5
-grow_horizontal = 2
-grow_vertical = 2
+[node name="lights" type="VBoxContainer" parent="Line" unique_id=1531637555]
+process_mode = 3
+layout_direction = 2
+layout_mode = 0
+offset_right = 240.0
+offset_bottom = 280.0
 rotation = -1.5707964
 theme_override_constants/separation = 0
 alignment = 1
 
-[node name="TextureRect" type="TextureRect" parent="Line/tracks" unique_id=2144015547]
+[node name="TextureRect" type="TextureRect" parent="Line/lights" unique_id=2144015547]
 modulate = Color(1, 1, 1, 0)
-custom_minimum_size = Vector2(240, 70)
+custom_minimum_size = Vector2(240, 10)
 layout_mode = 2
+size_flags_vertical = 3
 texture = SubResource("GradientTexture1D_lp400")
 
-[node name="TextureRect2" type="TextureRect" parent="Line/tracks" unique_id=1976395558]
+[node name="TextureRect2" type="TextureRect" parent="Line/lights" unique_id=1976395558]
 modulate = Color(1, 1, 1, 0)
-custom_minimum_size = Vector2(240, 70)
+custom_minimum_size = Vector2(240, 10)
 layout_mode = 2
+size_flags_vertical = 3
 texture = SubResource("GradientTexture1D_lp400")
 
-[node name="TextureRect3" type="TextureRect" parent="Line/tracks" unique_id=1315370723]
+[node name="TextureRect3" type="TextureRect" parent="Line/lights" unique_id=1315370723]
 modulate = Color(1, 1, 1, 0)
-custom_minimum_size = Vector2(240, 70)
+custom_minimum_size = Vector2(240, 10)
 layout_mode = 2
+size_flags_vertical = 3
 texture = SubResource("GradientTexture1D_lp400")
 
-[node name="TextureRect4" type="TextureRect" parent="Line/tracks" unique_id=1138509496]
+[node name="TextureRect4" type="TextureRect" parent="Line/lights" unique_id=1138509496]
 modulate = Color(1, 1, 1, 0)
-custom_minimum_size = Vector2(240, 70)
+custom_minimum_size = Vector2(240, 10)
 layout_mode = 2
+size_flags_vertical = 3
 texture = SubResource("GradientTexture1D_lp400")
 
-[node name="TextureRect5" type="TextureRect" parent="Line/tracks" unique_id=237206547]
+[node name="TextureRect5" type="TextureRect" parent="Line/lights" unique_id=237206547]
 visible = false
 modulate = Color(1, 1, 1, 0)
-custom_minimum_size = Vector2(240, 70)
+custom_minimum_size = Vector2(240, 10)
 layout_mode = 2
+size_flags_vertical = 3
 texture = SubResource("GradientTexture1D_lp400")
 
-[node name="TextureRect6" type="TextureRect" parent="Line/tracks" unique_id=830735817]
+[node name="TextureRect6" type="TextureRect" parent="Line/lights" unique_id=830735817]
 visible = false
 modulate = Color(1, 1, 1, 0)
-custom_minimum_size = Vector2(240, 70)
+custom_minimum_size = Vector2(240, 10)
 layout_mode = 2
+size_flags_vertical = 3
 texture = SubResource("GradientTexture1D_lp400")
 
-[node name="TextureRect7" type="TextureRect" parent="Line/tracks" unique_id=1504937326]
+[node name="TextureRect7" type="TextureRect" parent="Line/lights" unique_id=1504937326]
 visible = false
 modulate = Color(1, 1, 1, 0)
-custom_minimum_size = Vector2(240, 70)
+custom_minimum_size = Vector2(240, 10)
 layout_mode = 2
+size_flags_vertical = 3
 texture = SubResource("GradientTexture1D_lp400")
 
-[node name="TextureRect8" type="TextureRect" parent="Line/tracks" unique_id=1623405717]
+[node name="TextureRect8" type="TextureRect" parent="Line/lights" unique_id=1623405717]
 visible = false
 modulate = Color(1, 1, 1, 0)
-custom_minimum_size = Vector2(240, 70)
+custom_minimum_size = Vector2(240, 10)
 layout_mode = 2
+size_flags_vertical = 3
 texture = SubResource("GradientTexture1D_lp400")
 
-[node name="TextureRect9" type="TextureRect" parent="Line/tracks" unique_id=1564483216]
+[node name="TextureRect9" type="TextureRect" parent="Line/lights" unique_id=1564483216]
 visible = false
 modulate = Color(1, 1, 1, 0)
-custom_minimum_size = Vector2(240, 70)
+custom_minimum_size = Vector2(240, 10)
 layout_mode = 2
+size_flags_vertical = 3
+texture = SubResource("GradientTexture1D_lp400")
+
+[node name="TextureRect10" type="TextureRect" parent="Line/lights" unique_id=71895983]
+visible = false
+modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(240, 10)
+layout_mode = 2
+size_flags_vertical = 3
 texture = SubResource("GradientTexture1D_lp400")

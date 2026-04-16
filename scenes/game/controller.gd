@@ -14,9 +14,7 @@ extends Node2D
 @export var progress_bar: ColorRect
 @export var tap_pool: ObjectPool
 @export var hold_pool: ObjectPool
-
-const JUDGE_WINDOW :float = 0.09
-
+@export var judgment: Node
 
 var pause :bool = false:
 	set(v):
@@ -34,7 +32,6 @@ var notes_data :Array[Dictionary] = []  ## note数据用于生成note
 var notes_data_index: int = 0
 var active_notes: Array[Node2D] = []    ## 活动的音符 移动note
 var expired_notes :Array[Node2D] = []   ## 回收缓存 用于存放要在帧末回收的note
-var judgment_list :Array[Array] = []  ## 判定区 用来存进入判定区间的note
 
 var line_y: float = 800.0           ## 判定线的高度
 var timing_points: Array = []       ## 时间点数组
@@ -67,6 +64,8 @@ func start() -> void:
 	pause = false
 	
 	await lead_in_timer.timeout
+	
+	if pause: return
 	music.play()
 	music_time = get_music_position()
 
@@ -81,6 +80,12 @@ func restart(_chart_path :String) -> void:
 	tap_pool.recycle_all_nodes()
 	hold_pool.recycle_all_nodes()
 	active_notes.clear()
+	judgment.judgment_list.clear()
+	for i in key_quantity:
+		judgment.judgment_list.append([])
+	judgment.rating_init()
+	judgment.combo = 0
+	judgment.max_combo = 0
 	
 	if chart_path != _chart_path:
 		if load_beatmap(_chart_path) != OK: printerr("重开失败"); return
@@ -127,7 +132,6 @@ func spawn_notes() -> void:
 					note.modulate = Color("ffcc4dff")
 				else:
 					note.modulate = Color("4da6ffff") if note.track in [1,5] else Color.WHITE
-				
 		active_notes.append(note)
 		spawn += 1
 		notes_data_index += 1
@@ -148,6 +152,9 @@ func update_active_notes() -> void:
 			update_note(note)
 			last_note_time = note.time
 			last_note_pos = note.global_position.y
+		
+		if abs(note.time - music_time) <= judgment.JUDGE_WINDOW and !judgment.judgment_list[note.track].has(note):
+			judgment.judgment_list[note.track].append(note)
 		
 
 func update_note(note: Node2D) -> void:
@@ -193,20 +200,34 @@ func calculate_distance(from_time: float, to_time: float) -> float:
 func recycle_expired_notes() -> void:
 	for i in active_notes.size():
 		var note :Node2D = active_notes[i]
-		var expired_time :float = music_time - JUDGE_WINDOW if !auto_play else music_time
 		match note.type:
 			&"tap":
+				if note.hited:
+					expired_notes.append(note)
+					continue
+				
+				var expired_time :float = music_time - judgment.JUDGE_WINDOW if !auto_play else music_time
 				if note.time < expired_time:
 					if auto_play:
-						note.hited = true  # 后面替换成hit方法
+						judgment.lights[note.track].modulate.a = 1.0
+						judgment.hit(note.track)
+					else:
+						judgment.rating.Miss += 1
+						judgment.combo = 0
+						judgment.rating_L.show_rating(4)
 					expired_notes.append(note)
-					
 			&"hold":
+				var expired_time :float = music_time - judgment.JUDGE_WINDOW if !auto_play else music_time
 				if note.time < expired_time:
-					if auto_play:  # 后面替换成hit方法
-						note.hited = true
-						note.holding = true
-					if !note.hited: note.modulate.a = 0.5
+					if auto_play:
+						judgment.lights[note.track].modulate.a = 1.0
+						judgment.hit(note.track)
+					else:
+						if !note.hited:
+							judgment.rating.Miss += 1
+							judgment.combo = 0
+							judgment.rating_L.show_rating(4)
+							note.modulate.a = 0.5
 				
 				if(note.end_time < expired_time and note.holding) or (note.end.global_position.y > 1080.0):
 					expired_notes.append(note)
@@ -214,6 +235,7 @@ func recycle_expired_notes() -> void:
 	while expired_notes.size() > 0:
 		var expired_note :Node2D = expired_notes.pop_back()
 		active_notes.erase(expired_note)
+		judgment.judgment_list[expired_note.track].erase(expired_note)
 		recycle_note(expired_note)
 		
 
@@ -283,9 +305,10 @@ func load_beatmap(_chart_path :String) -> Error:
 	
 	key_quantity = beatmap_data[&"CircleSize"]
 	tracks.key_quantity = key_quantity
+	judgment.key_map = Setting.key_binding[key_quantity]
 	
 	for i in key_quantity:
-		judgment_list.append([])
+		judgment.judgment_list.append([])
 	
 	var pos :Vector2 = Vector2(tracks.position.x - tracks.track_H * key_quantity / 2, 0.0)
 	tap_pool.global_position = pos
@@ -342,7 +365,6 @@ func acquire_note(type :StringName) -> Node2D:
 
 ## 放回note
 func recycle_note(note :Node2D) -> void:
-	judgment_list[note.track].erase(note)
 	match note.type:
 		&"tap": tap_pool.recycle_node(note)
 		&"hold":

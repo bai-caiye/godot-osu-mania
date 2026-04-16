@@ -1,15 +1,14 @@
 [gd_scene format=3 uid="uid://cbedfe6gpqr64"]
 
 [ext_resource type="Script" uid="uid://xctws1r4bwdu" path="res://scenes/game/note/hold_note.gd" id="2_ahco4"]
-[ext_resource type="Texture2D" uid="uid://qd1ay07yaowf" path="res://assets/image/hold_body.png" id="2_i0reb"]
-[ext_resource type="Texture2D" uid="uid://bp5r8wuoeijsi" path="res://assets/image/hold_end.png" id="3_sw07j"]
+[ext_resource type="Texture2D" uid="uid://qd1ay07yaowf" path="res://assets/image/note/hold_body.png" id="2_i0reb"]
+[ext_resource type="Texture2D" uid="uid://bp5r8wuoeijsi" path="res://assets/image/note/hold_end.png" id="3_sw07j"]
 
 [node name="HoldNote" type="Node2D" unique_id=1722981463 node_paths=PackedStringArray("head", "body", "end")]
 script = ExtResource("2_ahco4")
 head = NodePath("head")
 body = NodePath("head/body")
 end = NodePath("end")
-metadata/_edit_horizontal_guides_ = [-100.0]
 
 [node name="head" type="Sprite2D" parent="." unique_id=2136459629]
 texture = ExtResource("3_sw07j")

@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://bhgfto8pvq86f"]
+
+[node name="track1" type="ColorRect" unique_id=302503801]
+modulate = Color(1, 1, 1, 0.9)
+custom_minimum_size = Vector2(70, 0)
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 70.0
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.745098)

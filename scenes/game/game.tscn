@@ -6,27 +6,34 @@
 [ext_resource type="Script" uid="uid://noqgsys81fw7" path="res://scenes/game/progress_bar.gd" id="3_lnu2h"]
 [ext_resource type="PackedScene" uid="uid://criwi1eyinjkn" path="res://scenes/game/note/tap_note.tscn" id="4_5i0tg"]
 [ext_resource type="PackedScene" uid="uid://cbedfe6gpqr64" path="res://scenes/game/note/hold_note.tscn" id="5_bdhmt"]
+[ext_resource type="Script" uid="uid://b8psasq4n7tvk" path="res://scenes/game/judgment.gd" id="6_bdhmt"]
+[ext_resource type="PackedScene" uid="uid://b8usxhka2qd1r" path="res://test/test_menu.tscn" id="8_87uf6"]
+[ext_resource type="PackedScene" uid="uid://wqqh7la6s4bf" path="res://scenes/game/rating.tscn" id="9_2a8rs"]
 
-[node name="Controller" type="Node2D" unique_id=1466468910 node_paths=PackedStringArray("bg", "music", "tracks", "lead_in_timer", "progress_bar", "tap_pool", "hold_pool")]
+[node name="Controller" type="Node2D" unique_id=1466468910 node_paths=PackedStringArray("bg", "music", "tracks", "lead_in_timer", "progress_bar", "tap_pool", "hold_pool", "judgment")]
 process_mode = 3
 process_priority = -1
 process_physics_priority = -1
 script = ExtResource("2_33cqm")
-chart_path = "D:/Project/Godot project/godot-osu-mania/test/351345 Randy Mortimer - Penguin (Pinnacle Remix)/Randy Mortimer - Penguin (Pinnacle Remix) (Cuppp) [gemboyong's 4K].osu"
+chart_path = "res://test/351345 Randy Mortimer - Penguin (Pinnacle Remix)/Randy Mortimer - Penguin (Pinnacle Remix) (Cuppp) [7K].osu"
 auto_play = true
-bg = NodePath("BG")
+offset = -0.05
+bg = NodePath("CanvasLayer/BG")
 music = NodePath("Music")
-tracks = NodePath("Tracks")
+tracks = NodePath("CanvasLayer/Tracks")
 lead_in_timer = NodePath("Lead-inTimer")
 progress_bar = NodePath("ProgressBar")
 tap_pool = NodePath("Notes/TapNotePool")
 hold_pool = NodePath("Notes/HoldNotePool")
+judgment = NodePath("Judgment")
 metadata/_edit_lock_ = true
 
-[node name="BG" type="TextureRect" parent="." unique_id=1366531993]
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=941320006]
+layer = -1
+
+[node name="BG" type="TextureRect" parent="CanvasLayer" unique_id=1366531993]
 process_mode = 4
 modulate = Color(0.5, 0.5, 0.5, 1)
-top_level = true
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -37,10 +44,9 @@ expand_mode = 1
 stretch_mode = 6
 metadata/_edit_lock_ = true
 
-[node name="Tracks" parent="." unique_id=1244043121 instance=ExtResource("2_dbls1")]
+[node name="Tracks" parent="CanvasLayer" unique_id=1244043121 instance=ExtResource("2_dbls1")]
 process_mode = 4
 process_priority = 2
-top_level = true
 
 [node name="Notes" type="Node2D" parent="." unique_id=583305566]
 z_index = 5
@@ -57,6 +63,13 @@ script = ExtResource("3_kelw5")
 scene = ExtResource("5_bdhmt")
 pool_size = 100
 metadata/_custom_type_script = "uid://d1yvrkddhp5ak"
+
+[node name="Judgment" type="Node" parent="." unique_id=305832376 node_paths=PackedStringArray("tracks", "controller", "combo_l", "rating_L")]
+script = ExtResource("6_bdhmt")
+tracks = NodePath("../CanvasLayer/Tracks")
+controller = NodePath("..")
+combo_l = NodePath("../Combo")
+rating_L = NodePath("../rating")
 
 [node name="Music" type="AudioStreamPlayer" parent="." unique_id=1590063657]
 process_priority = 1
@@ -82,3 +95,34 @@ color = Color(1, 1, 1, 0.5882353)
 script = ExtResource("3_lnu2h")
 music = NodePath("../Music")
 metadata/_edit_lock_ = true
+
+[node name="Combo" type="Label" parent="." unique_id=894282894]
+top_level = true
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.3
+anchor_right = 0.5
+anchor_bottom = 0.3
+offset_left = -20.0
+offset_top = -12.0
+offset_right = 20.0
+offset_bottom = 11.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 36
+horizontal_alignment = 1
+
+[node name="TestMenu" parent="." unique_id=179995671 instance=ExtResource("8_87uf6")]
+
+[node name="rating" parent="." unique_id=1738127207 instance=ExtResource("9_2a8rs")]
+top_level = true
+z_index = 6
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.656
+anchor_right = 0.5
+anchor_bottom = 0.656
+offset_top = -0.4800415
+offset_bottom = -0.4800415
+grow_horizontal = 2
+grow_vertical = 2
