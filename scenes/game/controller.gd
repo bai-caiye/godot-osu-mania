@@ -153,7 +153,7 @@ func update_active_notes() -> void:
 			last_note_time = note.time
 			last_note_pos = note.global_position.y
 		
-		if abs(note.time - music_time) <= judgment.JUDGE_WINDOW and !judgment.judgment_list[note.track].has(note):
+		if abs(note.time - music_time) <= judgment.JUDGE_WINDOW and (!judgment.judgment_list[note.track].has(note)) and (!note.hited):
 			judgment.judgment_list[note.track].append(note)
 		
 
@@ -212,9 +212,10 @@ func recycle_expired_notes() -> void:
 						judgment.lights[note.track].modulate.a = 1.0
 						judgment.hit(note.track)
 					else:
-						judgment.rating.Miss += 1
-						judgment.combo = 0
-						judgment.rating_L.show_rating(4)
+						if !note.hited:
+							judgment.rating.Miss += 1
+							judgment.combo = 0
+							judgment.rating_L.show_rating(4)
 					expired_notes.append(note)
 			&"hold":
 				var expired_time :float = music_time - judgment.JUDGE_WINDOW if !auto_play else music_time
@@ -227,6 +228,7 @@ func recycle_expired_notes() -> void:
 							judgment.rating.Miss += 1
 							judgment.combo = 0
 							judgment.rating_L.show_rating(4)
+						if !note.holding:
 							note.modulate.a = 0.5
 				
 				if(note.end_time < expired_time and note.holding) or (note.end.global_position.y > 1080.0):
@@ -236,6 +238,8 @@ func recycle_expired_notes() -> void:
 		var expired_note :Node2D = expired_notes.pop_back()
 		active_notes.erase(expired_note)
 		judgment.judgment_list[expired_note.track].erase(expired_note)
+		if expired_note.type == &"hold":
+			judgment.release_list[expired_note.track].erase(expired_note)
 		recycle_note(expired_note)
 		
 
@@ -309,6 +313,7 @@ func load_beatmap(_chart_path :String) -> Error:
 	
 	for i in key_quantity:
 		judgment.judgment_list.append([])
+		judgment.release_list.append([])
 	
 	var pos :Vector2 = Vector2(tracks.position.x - tracks.track_H * key_quantity / 2, 0.0)
 	tap_pool.global_position = pos

@@ -29,6 +29,7 @@ var rating :Dictionary = {
 var key_map :Dictionary
 var keys :Array[bool] = [false, false, false, false,false, false, false, false,false, false]
 var judgment_list :Array[Array] = []  ## 判定区 用来存进入判定区间的note
+var release_list :Array[Array] = []
 
 var max_combo :int = 0
 var combo :int = 0:
@@ -36,13 +37,16 @@ var combo :int = 0:
 		combo = v
 		combo_l.text = str(combo)
 		if combo > max_combo:
-			max_combo = max_combo
+			max_combo = combo
+
 
 func _ready() -> void:
 	lights = tracks.lights
 
 
 func _unhandled_key_input(event: InputEvent) -> void:
+	if controller.auto_play: return
+	
 	if event.pressed and !event.is_echo():
 		if event.keycode in key_map:
 			keys[key_map[event.keycode]] = true
@@ -52,12 +56,17 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		var note :Node2D
 		if event.keycode in key_map:
 			keys[key_map[event.keycode]] = false
-			if judgment_list[key_map[event.keycode]].is_empty(): return
-			note = judgment_list[key_map[event.keycode]].front()
-		if note and note.type == &"hold":
+			if release_list[key_map[event.keycode]].is_empty(): return
+			note = release_list[key_map[event.keycode]].pop_front()
+		if note and note.type == &"hold" and note.hited:
 			note.holding = false
-			if abs(note.end_time - controller.music_time) <= RatingRange.Bad:
+			if abs(note.end_time - controller.music_time) <= RatingRange.OK:
 				note.set_length(note.head.global_position.y+10)
+			else:
+				rating.Miss += 1
+				combo = 0
+				rating_L.show_rating(4)
+				note.modulate.a = 0.5
 
 
 func _physics_process(delta: float) -> void:
@@ -71,7 +80,10 @@ func hit(track :int) -> void:
 	assert(note.track == track, "打到别的轨道去了")
 	if note and !note.hited:
 		note.hited = true
-		if note.type == &"hold": note.holding = true
+		if note.type == &"hold":
+			note.holding = true
+			release_list[track].append(note)
+		judgment_list[track].erase(note)
 		judgment(note.time, controller.music_time)
 
 
