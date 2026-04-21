@@ -366,7 +366,7 @@ func acquire_note(type :StringName) -> Node2D:
 	match type:
 		&"tap": return tap_pool.acquire_node()
 		&"hold": return hold_pool.acquire_node()
-	return null
+		_: return tap_pool.acquire_node()
 
 ## 放回note
 func recycle_note(note :Node2D) -> void:
@@ -375,6 +375,7 @@ func recycle_note(note :Node2D) -> void:
 		&"hold":
 			note.head.position.y = 0.0
 			hold_pool.recycle_node(note)
+		_: return tap_pool.recycle_node(note)
 
 func conversion_type(x) -> StringName:
 	match int(x):

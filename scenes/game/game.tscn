@@ -16,6 +16,7 @@ process_priority = -1
 process_physics_priority = -1
 script = ExtResource("2_33cqm")
 chart_path = "res://test/351345 Randy Mortimer - Penguin (Pinnacle Remix)/Randy Mortimer - Penguin (Pinnacle Remix) (Cuppp) [7K].osu"
+auto_play = true
 offset = -0.1
 bg = NodePath("CanvasLayer/BG")
 music = NodePath("Music")
@@ -61,6 +62,7 @@ metadata/_custom_type_script = "uid://d1yvrkddhp5ak"
 script = ExtResource("3_kelw5")
 scene = ExtResource("5_bdhmt")
 pool_size = 100
+max_pool_size = 2000
 metadata/_custom_type_script = "uid://d1yvrkddhp5ak"
 
 [node name="Judgment" type="Node" parent="." unique_id=305832376 node_paths=PackedStringArray("tracks", "controller", "combo_l", "rating_L")]

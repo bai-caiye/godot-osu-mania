@@ -70,8 +70,6 @@ func clear_pool() -> void:
 ## 如果启用 [member enable_limit] 取出限制 那如果池为空且总节点数量 大于 [member max_pool_size] 时将会返回 [code]null[/code]
 ## [br][br]如果 [member mode] 是 [enum Mode.DYNAMIC] 模式就会把取出的节点添加到 [member add_to] 节点下
 func acquire_node() -> Node2D:
-	if get_pool_size() >= max_pool_size: return null
-	
 	var node = pool.pop_back()
 	if !is_instance_valid(node): node = _create_node()
 	

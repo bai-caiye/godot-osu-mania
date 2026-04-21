@@ -3,13 +3,20 @@ extends Node
 
 ## 键位映射
 var key_binding :Dictionary = {
+	1: {},
+	2: {},
+	3: {},
 	4: {KEY_D:0, KEY_F:1, KEY_J:2, KEY_K:3},
+	5: {KEY_D:0, KEY_F:1, KEY_SPACE:3, KEY_J:4, KEY_K:5},
 	6: {KEY_S:0, KEY_D:1, KEY_F:2, KEY_J:3, KEY_K:4, KEY_L:5},
 	7: {KEY_S:0, KEY_D:1, KEY_F:2, KEY_SPACE:3, KEY_J:4, KEY_K:5, KEY_L:6},
+	8: {KEY_A:0, KEY_S:1, KEY_D:2, KEY_F:3, KEY_J:4, KEY_K:5, KEY_L:6, KEY_SEMICOLON:7},
+	10: {},
 }
 
 var full_screen :bool =false
 func _unhandled_key_input(event: InputEvent) -> void:
+	
 	if event.keycode == KEY_F11 and event.pressed and !event.is_echo():
 		full_screen = !full_screen
 		DisplayServer.window_set_mode(
