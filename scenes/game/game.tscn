@@ -56,6 +56,7 @@ position = Vector2(960, 0)
 script = ExtResource("3_kelw5")
 scene = ExtResource("4_5i0tg")
 pool_size = 200
+max_pool_size = 10000
 metadata/_custom_type_script = "uid://d1yvrkddhp5ak"
 
 [node name="HoldNotePool" type="Node2D" parent="Notes" unique_id=827082849]

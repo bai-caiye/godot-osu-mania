@@ -5,35 +5,12 @@ class_name ObjectPool extends Node2D
 @export var scene: PackedScene                              ## 要实例化的场景资源
 @export_range(10, 1000) var pool_size: int = 50             ## 对象池的初始大小 启动时会预创建这么多实例
 @export_range(1000, 10000) var max_pool_size: int = 1000    ## 对象池的最大容量限制 当池内对象总数（空闲+活跃）超过此值时 新取出的对象将不再回收到池中
-@export_subgroup("Decay")
-@export var enable_decay :bool = true                       ## 如果为 [code]true[/code] 会创建定时器自动释放超出 [member pool_size] 的多余空闲节点
-@export_range(0.1, 10.0) var decay_interval :float = 1.0    ## 衰减检查的间隔时间 (秒) 每隔此时间释放一个超出初始大小的空闲节点
 
-var pool: Array[Node2D] = []                                  ## [b]对象池[/b] 存储空闲节点实例的队列
+var pool: Array[Node2D] = []                                ## [b]对象池[/b] 存储空闲节点实例的队列
 
 ## 活跃对象字典 键为当前被取出使用的节点 值为 [code]true[/code]
 ## 使用字典而非数组是为了 [method has] 判断的时间复杂度为 O(1)
 var active_nodes :Dictionary[Node2D, bool] = {}
-
-
-# 初始化对象池并把自己注册到管理器名单
-func _ready() -> void: 
-	if !enable_decay: return
-	
-	# 创建一个计时器用来释放多余对象
-	var timer: Timer = Timer.new()
-	timer.wait_time = decay_interval
-	timer.process_callback = Timer.TIMER_PROCESS_PHYSICS
-	add_child(timer)
-	# author baicaiye
-	# 绑定虚方法实现定时释放
-	timer.timeout.connect(
-	func():
-		if get_pool_size() > pool_size and !pool.is_empty():
-			var node = pool.pop_back()
-			if is_instance_valid(node): node.queue_free()
-		)
-	timer.start()
 
 
 ## 初始化对象池 [member slow_create] 是否启用慢加载
@@ -51,7 +28,6 @@ func _create_node() -> Node2D:
 	var node: Node2D = scene.instantiate()
 	node.visible = false
 	node.process_mode = PROCESS_MODE_DISABLED
-	node.set_physics_process(false)
 	add_child(node)
 	return node
 
@@ -76,7 +52,6 @@ func acquire_node() -> Node2D:
 	active_nodes[node] = true
 	node.visible = true
 	node.process_mode = Node.PROCESS_MODE_INHERIT
-	node.set_physics_process(true)
 	return node
 
 
@@ -84,7 +59,7 @@ func acquire_node() -> Node2D:
 func recycle_node(node: Node2D) -> void:
 	if not active_nodes.erase(node): return
 	
-	if get_pool_size() > max_pool_size:
+	if get_total_size() > max_pool_size:
 		node.queue_free(); return
 	
 	_recycle_reset(node)
@@ -102,12 +77,10 @@ func recycle_all_nodes() -> void:
 	while pool.size() > pool_size:
 		pool.pop_back().queue_free()
 
-
 # 把回收节点重置
 func _recycle_reset(node :Node2D) -> void:
 	node.visible = false
 	node.process_mode = PROCESS_MODE_DISABLED
-	node.set_physics_process(false)
 	node.reset()    # 需要在node脚本里自行定义reset方法
 
 
@@ -116,8 +89,11 @@ func free_node(node :Node) -> void:
 	active_nodes.erase(node)
 	if is_instance_valid(node): node.queue_free()
 
+## 获取对象池还有多少 [Node] 在 [member pool]
+func get_pool_size() -> int:
+	return pool.size()
 
 ## 获取对象池的总节点数量 (在池节点 + 活跃节点)
-func get_pool_size() -> int:
+func get_total_size() -> int:
 	return pool.size() + active_nodes.size()
 # author baicaiye

@@ -6,6 +6,7 @@ var track :int = 0          ## 在哪条轨道上
 var hited :bool = false
 
 func reset() -> void:
+	time = 0.0
 	modulate = Color.WHITE
 	visible = false
 	hited = false
