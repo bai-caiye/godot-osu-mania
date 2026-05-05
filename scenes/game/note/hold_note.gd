@@ -14,6 +14,7 @@ var holding :bool = false:
 		if !v and holding:
 			modulate.a = 0.5
 		holding = v
+var released :bool = false
 
 ## 设置尾头位置更改长度
 func set_length(end_pos :float, head_pos :float = head.global_position.y) -> void:
@@ -37,6 +38,7 @@ func reset() -> void:
 	visible = false
 	hited = false
 	holding = false
+	released = false
 	head.position.y = 0
 	end.position.y = 0
 	body.scale.y = 1

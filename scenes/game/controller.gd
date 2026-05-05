@@ -152,7 +152,7 @@ func update_active_notes() -> void:
 			last_note_time = note.time
 			last_note_pos = note.global_position.y
 		
-		if abs(note.time - music_time) <= judgment.JUDGE_WINDOW and (!judgment.judgment_list[note.track].has(note)) and (!note.hited):
+		if abs(note.time - music_time) <= judgment.RatingRange.Miss and (!judgment.judgment_list[note.track].has(note)) and (!note.hited):
 			judgment.judgment_list[note.track].append(note)
 		
 
@@ -205,43 +205,23 @@ func recycle_expired_notes() -> void:
 					expired_notes.append(note)
 					continue
 				
-				if auto_play and not judgment.judgment_list[note.track].is_empty() and judgment.judgment_list[note.track].front() == note:
-					if abs(note.time - music_time) <= judgment.RatingRange.Perfect:
-						judgment.lights[note.track].modulate.a = 1.0
-						if (not note.hited) and judgment.judgment_list[note.track].has(note):
-							judgment.hit(note.track)
-				
-				elif note.time < music_time - judgment.JUDGE_WINDOW and !note.hited:
-					note.hited = true
-					judgment.rating.Miss += 1
-					judgment.combo = 0
-					judgment.rating_L.show_rating(4)
+				if note.time - music_time < -judgment.RatingRange.Miss and !expired_notes.has(note):
+					judgment.judgment(note.time, music_time)
 					expired_notes.append(note)
+				
 			&"hold":
-				if auto_play and not judgment.judgment_list[note.track].is_empty() and judgment.judgment_list[note.track].front() == note:
-					if abs(note.time - music_time) <= judgment.RatingRange.Perfect:
-						judgment.lights[note.track].modulate.a = 1.0
-						if (not note.hited) and judgment.judgment_list[note.track].has(note):
-							judgment.hit(note.track)
-				
-				if auto_play and note.hited and note.holding:
-					if abs(note.end_time - music_time) <= judgment.RatingRange.Perfect:
-						note.holding = false
-						if judgment.release_list[note.track].has(note):
-							judgment.release_list[note.track].erase(note)
-						judgment.judgment(note.end_time, music_time)
-						note.set_length(note.head.global_position.y+10)
-				
-				elif note.time < music_time - judgment.JUDGE_WINDOW and !note.hited:
-					note.hited = true
-					judgment.rating.Miss += 1
-					judgment.combo = 0
-					judgment.rating_L.show_rating(4)
-				
-				if !note.holding and note.end_time - music_time < judgment.RatingRange.Bad:
+				var dt :float = note.time - music_time
+				if (dt < -judgment.RatingRange.Miss or note.hited) and (not note.holding) and note.modulate.a != 0.5:
 					note.modulate.a = 0.5
+					if dt < -judgment.RatingRange.Miss:
+						judgment.judgment(note.time, music_time)
 				
-				if note.end_time - music_time < judgment.RatingRange.Miss and note.end.global_position.y > 1080.0:
+				if note.end_time - music_time < -judgment.RatingRange.Great and !note.released:
+					judgment.release_list[note.track].erase(note)
+					note.released = true
+					judgment.judgment(note.end_time, music_time)
+					
+				if note.end_time - music_time < -judgment.RatingRange.Bad and note.end.global_position.y > 1080.0:
 					expired_notes.append(note)
 		
 	while expired_notes.size() > 0:

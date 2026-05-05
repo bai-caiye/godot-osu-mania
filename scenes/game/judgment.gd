@@ -6,8 +6,6 @@ extends Node
 @export var rating_L: Control
 var lights :Array[TextureRect] = []
 
-const JUDGE_WINDOW :float = 0.18
-
 const RatingRange :Dictionary = {
 	"Perfect": 0.0165,
 	"Great"  : 0.045,
@@ -69,17 +67,17 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		var note :Node2D
 		if event.keycode in key_map:
 			keys[key_map[event.keycode]] = false
-			if release_list[key_map[event.keycode]].is_empty(): return
+			if release_list[key_map[event.keycode]].is_empty():
+				return
 			note = release_list[key_map[event.keycode]].pop_front()
+		
 		if note and note.type == &"hold" and note.hited:
 			note.holding = false
+			note.released = true
+			note.modulate.a = 0.5
+			judgment(note.end_time, controller.music_time)
 			if abs(note.end_time - controller.music_time) <= RatingRange.OK:
 				note.set_length(note.head.global_position.y+10)
-			else:
-				rating.Miss += 1
-				combo = 0
-				rating_L.show_rating(4)
-				note.modulate.a = 0.5
 
 
 func _physics_process(delta: float) -> void:
@@ -90,7 +88,6 @@ func _physics_process(delta: float) -> void:
 func hit(track :int) -> void:
 	if judgment_list[track].is_empty(): return
 	var note :Node2D = judgment_list[track].front()
-	assert(note.track == track, "打到别的轨道去了")
 	if note and !note.hited:
 		note.hited = true
 		if note.type == &"hold":
@@ -131,13 +128,12 @@ func judgment(time :float, music_time :float) -> String:
 		combo = 0
 		rating_L.show_rating(3)
 		return "Bad"
-		
-	elif t <= RatingRange.Miss:
-		rating.Miss += 1
-		combo = 0
-		rating_L.show_rating(4)
-		return "Miss"
-	return ""
+	
+	
+	rating.Miss += 1
+	combo = 0
+	rating_L.show_rating(4)
+	return "Miss"
 
 
 func rating_init() -> void:
