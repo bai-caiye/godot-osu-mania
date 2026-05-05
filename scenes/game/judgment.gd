@@ -10,7 +10,7 @@ const JUDGE_WINDOW :float = 0.18
 
 const RatingRange :Dictionary = {
 	"Perfect": 0.0165,
-	"Great"  : 0.040,
+	"Great"  : 0.045,
 	"Good"   : 0.075,
 	"OK"     : 0.140,
 	"Bad"    : 0.165,
@@ -111,13 +111,13 @@ func judgment(time :float, music_time :float) -> String:
 	elif t <= RatingRange.Great:
 		rating.Great += 1
 		combo += 1
-		rating_L.show_rating(0)
+		rating_L.show_rating(1)
 		return "Great"
 		
 	elif t <= RatingRange.Good:
 		rating.Good += 1
 		combo += 1
-		rating_L.show_rating(1)
+		rating_L.show_rating(2)
 		return "Good"
 		
 	elif t <= RatingRange.OK:
