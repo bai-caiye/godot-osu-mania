@@ -113,11 +113,17 @@ func judgment(time :float, music_time :float) -> String:
 		rating_L.show_rating(2)
 		return "OK"
 	
-	elif t <= RatingRange.Bad and time > music_time:
+	elif t <= RatingRange.Bad:
 		rating.Bad += 1
 		combo = 0
 		rating_L.show_rating(3)
 		return "Bad"
+		
+	elif t <= RatingRange.Miss:
+		rating.Miss += 1
+		combo = 0
+		rating_L.show_rating(4)
+		return "Miss"
 	return ""
 
 

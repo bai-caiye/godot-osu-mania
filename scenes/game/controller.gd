@@ -59,6 +59,7 @@ func _ready() -> void:
 	start()
 	
 func start() -> void:
+	lead_in_timer.wait_time = 1.6 + offset
 	music_time = 0.0 - lead_in_timer.wait_time
 	lead_in_timer.start()
 	pause = false
@@ -68,6 +69,7 @@ func start() -> void:
 	if pause: return
 	music.play()
 	music_time = get_music_position()
+
 
 ## 重开
 func restart(_chart_path :String) -> void:
@@ -228,7 +230,7 @@ func recycle_expired_notes() -> void:
 							judgment.rating.Miss += 1
 							judgment.combo = 0
 							judgment.rating_L.show_rating(4)
-						if !note.holding:
+						if !note.holding and abs(music_time - judgment.RatingRange.Bad - note.end_time) <= judgment.RatingRange.Bad:
 							note.modulate.a = 0.5
 				
 				if(note.end_time < expired_time and note.holding) or (note.end.global_position.y > 1080.0):
@@ -311,6 +313,8 @@ func load_beatmap(_chart_path :String) -> Error:
 	tracks.key_quantity = key_quantity
 	judgment.key_map = Setting.key_binding[key_quantity]
 	
+	judgment.judgment_list.clear()
+	judgment.release_list.clear()
 	for i in key_quantity:
 		judgment.judgment_list.append([])
 		judgment.release_list.append([])
@@ -352,8 +356,8 @@ func load_notes_data(_chart: PackedStringArray) -> void:
 		
 		var note_data :Dictionary = {
 			&"type": conversion_type(line.get_slice(",", 3)),
-			&"time": c_time(line.get_slice(",", 2)) - offset - chart_offset,
-			&"end_time": c_time(line.get_slice(",", 5).get_slice(":", 0)) - offset - chart_offset,
+			&"time": c_time(line.get_slice(",", 2)) - chart_offset,
+			&"end_time": c_time(line.get_slice(",", 5).get_slice(":", 0)) - chart_offset,
 			&"track_index": conversion_track(line.get_slice(",", 0)),
 			&"lead_time": 0.0
 		}

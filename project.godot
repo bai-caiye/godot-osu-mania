@@ -47,6 +47,10 @@ window/size/window_height_override=648
 window/stretch/mode="viewport"
 window/stretch/aspect="expand"
 
+[dotnet]
+
+project/assembly_name="osu!mania"
+
 [input_devices]
 
 sensors/enable_object_picking=true
