@@ -16,6 +16,7 @@ process_priority = -1
 process_physics_priority = -1
 script = ExtResource("2_33cqm")
 chart_path = "res://test/351345 Randy Mortimer - Penguin (Pinnacle Remix)/Randy Mortimer - Penguin (Pinnacle Remix) (Cuppp) [7K].osu"
+auto_play = true
 offset = 0.09
 bg = NodePath("CanvasLayer/BG")
 music = NodePath("Music")

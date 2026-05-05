@@ -64,20 +64,11 @@ func _unhandled_key_input(event: InputEvent) -> void:
 			hit(key_map[event.keycode])
 		
 	if event.is_released():
-		var note :Node2D
 		if event.keycode in key_map:
 			keys[key_map[event.keycode]] = false
 			if release_list[key_map[event.keycode]].is_empty():
 				return
-			note = release_list[key_map[event.keycode]].pop_front()
-		
-		if note and note.type == &"hold" and note.hited:
-			note.holding = false
-			note.released = true
-			note.modulate.a = 0.5
-			judgment(note.end_time, controller.music_time)
-			if abs(note.end_time - controller.music_time) <= RatingRange.OK:
-				note.set_length(note.head.global_position.y+10)
+			released(key_map[event.keycode])
 
 
 func _physics_process(delta: float) -> void:
@@ -95,6 +86,17 @@ func hit(track :int) -> void:
 			release_list[track].append(note)
 		judgment_list[track].erase(note)
 		judgment(note.time, controller.music_time)
+
+func released(track :int) -> void:
+	var note :Node2D = release_list[track].pop_front()
+	
+	if note and note.type == &"hold" and note.hited:
+		note.holding = false
+		note.released = true
+		note.modulate.a = 0.5
+		judgment(note.end_time, controller.music_time)
+		if abs(note.end_time - controller.music_time) <= RatingRange.OK:
+			note.set_length(note.head.global_position.y+10)
 
 
 func judgment(time :float, music_time :float) -> String:

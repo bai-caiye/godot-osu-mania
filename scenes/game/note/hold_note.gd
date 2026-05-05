@@ -35,6 +35,7 @@ func reset() -> void:
 	end_time = 0.0
 	modulate = Color.WHITE
 	modulate.a = 1.0
+	track = -1
 	visible = false
 	hited = false
 	holding = false

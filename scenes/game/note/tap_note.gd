@@ -10,6 +10,7 @@ func init() -> void:
 
 func reset() -> void:
 	time = 0.0
+	track = -1
 	modulate = Color.WHITE
 	visible = false
 	hited = false

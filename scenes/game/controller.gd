@@ -103,9 +103,25 @@ func _process(delta: float) -> void:
 		if music_dt > 0.015 or music_dt < -0.015:
 			music_time = music_t
 	
+	if auto_play :auto_playing()
+	
 	spawn_notes()
 	update_active_notes()
 	recycle_expired_notes()
+
+
+func auto_playing()-> void:
+	for track in range(judgment.judgment_list.size()):
+		if not judgment.judgment_list[track].is_empty():
+			var note: Node2D = judgment.judgment_list[track].front()
+			if note and !note.hited and note.time - music_time <= 0.0:
+				judgment.hit(track)
+	
+	for track in range(judgment.release_list.size()):
+		if not judgment.release_list[track].is_empty():
+			var note: Node2D = judgment.release_list[track].front()
+			if note and !note.released and note.end_time - music_time <= 0.0:
+				judgment.released(track)
 
 
 ## 生成note
@@ -154,7 +170,7 @@ func update_active_notes() -> void:
 		
 		if abs(note.time - music_time) <= judgment.RatingRange.Miss and (!judgment.judgment_list[note.track].has(note)) and (!note.hited):
 			judgment.judgment_list[note.track].append(note)
-		
+
 
 func update_note(note: Node2D) -> void:
 	match note.type:
