@@ -232,12 +232,14 @@ func recycle_expired_notes() -> void:
 					if dt < -judgment.RatingRange.Miss:
 						judgment.judgment(note.time, music_time)
 				
-				if note.end_time - music_time < -judgment.RatingRange.Great and !note.released:
-					judgment.release_list[note.track].erase(note)
+				var edt: float = note.end_time - music_time
+				if (edt < -judgment.RatingRange.Bad or (note.holding and edt <= -judgment.RatingRange.Good)) and !note.released:
+					if judgment.release_list[note.track].has(note):
+						judgment.release_list[note.track].erase(note)
 					note.released = true
 					judgment.judgment(note.end_time, music_time)
 					
-				if note.end_time - music_time < -judgment.RatingRange.Bad and note.end.global_position.y > 1080.0:
+				if edt < -judgment.RatingRange.Bad and note.end.global_position.y > 1080.0:
 					expired_notes.append(note)
 		
 	while expired_notes.size() > 0:

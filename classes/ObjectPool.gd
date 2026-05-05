@@ -3,14 +3,14 @@ class_name ObjectPool extends Node2D
 
 @export_group("Settings")
 @export var scene: PackedScene                              ## 要实例化的场景资源
-@export_range(10, 1000) var pool_size: int = 50             ## 对象池的初始大小 启动时会预创建这么多实例
-@export_range(1000, 10000) var max_pool_size: int = 1000    ## 对象池的最大容量限制 当池内对象总数（空闲+活跃）超过此值时 新取出的对象将不再回收到池中
+@export var pool_size: int = 50             ## 对象池的初始大小 启动时会预创建这么多实例
+@export var max_pool_size: int = 1000    ## 对象池的最大容量限制 当池内对象总数（空闲+活跃）超过此值时 新取出的对象将不再回收到池中
 
-var pool: Array[Node2D] = []                                ## [b]对象池[/b] 存储空闲节点实例的队列
+var pool: Array[Node] = []                                ## [b]对象池[/b] 存储空闲节点实例的队列
 
 ## 活跃对象字典 键为当前被取出使用的节点 值为 [code]true[/code]
 ## 使用字典而非数组是为了 [method has] 判断的时间复杂度为 O(1)
-var active_nodes :Dictionary[Node2D, bool] = {}
+var active_nodes :Dictionary[Node, bool] = {}
 
 
 ## 初始化对象池 [member slow_create] 是否启用慢加载
@@ -24,8 +24,8 @@ func init_pool(slow_create :bool = false) -> void:
 
 
 # 创建一个节点实例 节点初始状态为禁用和隐藏
-func _create_node() -> Node2D:
-	var node: Node2D = scene.instantiate()
+func _create_node() -> Node:
+	var node: Node = scene.instantiate()
 	node.visible = false
 	node.process_mode = PROCESS_MODE_DISABLED
 	add_child(node)
@@ -45,7 +45,7 @@ func clear_pool() -> void:
 ## 从对象池取出一个节点  如果池为空将会创建新节点返回可用的节点实例[br][br]
 ## 如果启用 [member enable_limit] 取出限制 那如果池为空且总节点数量 大于 [member max_pool_size] 时将会返回 [code]null[/code]
 ## [br][br]如果 [member mode] 是 [enum Mode.DYNAMIC] 模式就会把取出的节点添加到 [member add_to] 节点下
-func acquire_node() -> Node2D:
+func acquire_node() -> Node:
 	var node = pool.pop_back()
 	if !is_instance_valid(node): node = _create_node()
 	
@@ -58,7 +58,7 @@ func acquire_node() -> Node2D:
 
 
 ## 回收一个节点 如果池大小 大于 [member max_pool_size]
-func recycle_node(node: Node2D) -> void:
+func recycle_node(node: Node) -> void:
 	if not active_nodes.erase(node): return
 	
 	if get_total_size() > max_pool_size:
@@ -70,7 +70,7 @@ func recycle_node(node: Node2D) -> void:
 
 ## 回收所有节点 会释放超出 [member pool_size] 的节点 且清除在 [member active_nodes] 的无效节点
 func recycle_all_nodes() -> void:
-	for node :Node2D in active_nodes.keys():
+	for node :Node in active_nodes.keys():
 		if !is_instance_valid(node): continue
 		_recycle_reset(node)
 		pool.append(node)
@@ -80,7 +80,7 @@ func recycle_all_nodes() -> void:
 		pool.pop_back().queue_free()
 
 # 把回收节点重置
-func _recycle_reset(node :Node2D) -> void:
+func _recycle_reset(node :Node) -> void:
 	node.visible = false
 	node.process_mode = PROCESS_MODE_DISABLED
 	node.reset()    # 需要在node脚本里自行定义reset方法

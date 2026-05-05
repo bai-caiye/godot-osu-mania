@@ -9,6 +9,7 @@
 [ext_resource type="Script" uid="uid://b8psasq4n7tvk" path="res://scenes/game/judgment.gd" id="6_bdhmt"]
 [ext_resource type="PackedScene" uid="uid://b8usxhka2qd1r" path="res://test/test_menu.tscn" id="8_87uf6"]
 [ext_resource type="PackedScene" uid="uid://wqqh7la6s4bf" path="res://scenes/game/rating.tscn" id="9_2a8rs"]
+[ext_resource type="PackedScene" uid="uid://cm4ijwwpgxlm7" path="res://scenes/game/j_pos.tscn" id="10_4j704"]
 
 [node name="Controller" type="Node2D" unique_id=1466468910 node_paths=PackedStringArray("bg", "music", "tracks", "lead_in_timer", "progress_bar", "tap_pool", "hold_pool", "judgment")]
 process_mode = 3
@@ -17,7 +18,6 @@ process_physics_priority = -1
 script = ExtResource("2_33cqm")
 chart_path = "res://test/351345 Randy Mortimer - Penguin (Pinnacle Remix)/Randy Mortimer - Penguin (Pinnacle Remix) (Cuppp) [7K].osu"
 auto_play = true
-offset = 0.09
 bg = NodePath("CanvasLayer/BG")
 music = NodePath("Music")
 tracks = NodePath("CanvasLayer/Tracks")
@@ -66,12 +66,13 @@ pool_size = 100
 max_pool_size = 2000
 metadata/_custom_type_script = "uid://d1yvrkddhp5ak"
 
-[node name="Judgment" type="Node" parent="." unique_id=305832376 node_paths=PackedStringArray("tracks", "controller", "combo_l", "rating_L")]
+[node name="Judgment" type="Node" parent="." unique_id=305832376 node_paths=PackedStringArray("tracks", "controller", "combo_l", "rating_L", "j_pos")]
 script = ExtResource("6_bdhmt")
 tracks = NodePath("../CanvasLayer/Tracks")
 controller = NodePath("..")
 combo_l = NodePath("../Combo")
 rating_L = NodePath("../rating")
+j_pos = NodePath("../JPos")
 
 [node name="Music" type="AudioStreamPlayer" parent="." unique_id=1590063657]
 process_priority = 1
@@ -116,6 +117,7 @@ theme_override_font_sizes/font_size = 36
 horizontal_alignment = 1
 
 [node name="TestMenu" parent="." unique_id=179995671 instance=ExtResource("8_87uf6")]
+metadata/_edit_lock_ = true
 
 [node name="rating" parent="." unique_id=1738127207 instance=ExtResource("9_2a8rs")]
 top_level = true
@@ -127,5 +129,18 @@ anchor_right = 0.5
 anchor_bottom = 0.656
 offset_top = -0.4800415
 offset_bottom = -0.4800415
+grow_horizontal = 2
+grow_vertical = 2
+metadata/_edit_lock_ = true
+
+[node name="JPos" parent="." unique_id=233045596 instance=ExtResource("10_4j704")]
+top_level = true
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.837
+anchor_right = 0.5
+anchor_bottom = 0.837
+offset_top = 0.039978027
+offset_bottom = 0.039978027
 grow_horizontal = 2
 grow_vertical = 2

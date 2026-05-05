@@ -4,6 +4,7 @@ extends Node
 @export var controller: Node2D
 @export var combo_l: Label
 @export var rating_L: Control
+@export var j_pos: Control
 var lights :Array[TextureRect] = []
 
 const RatingRange :Dictionary = {
@@ -39,7 +40,7 @@ var combo :int = 0:
 
 func init() -> void:
 	keys = [false, false, false, false,false, false, false, false,false, false]
-	
+	j_pos.init()
 	judgment_list.clear()
 	release_list.clear()
 	
@@ -101,6 +102,7 @@ func released(track :int) -> void:
 
 func judgment(time :float, music_time :float) -> String:
 	var t :float = abs(time - music_time)
+	j_pos.add_line(music_time - time)
 	if t <= RatingRange.Perfect:
 		rating.Perfect += 1
 		combo += 1
