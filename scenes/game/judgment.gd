@@ -39,6 +39,19 @@ var combo :int = 0:
 		if combo > max_combo:
 			max_combo = combo
 
+func init() -> void:
+	keys = [false, false, false, false,false, false, false, false,false, false]
+	
+	judgment_list.clear()
+	release_list.clear()
+	
+	for i in controller.key_quantity:
+		judgment_list.append([])
+		release_list.append([])
+	
+	rating_init()
+	combo = 0
+	max_combo = 0
 
 func _ready() -> void:
 	lights = tracks.lights

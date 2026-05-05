@@ -24,10 +24,19 @@ func set_length(end_pos :float, head_pos :float = head.global_position.y) -> voi
 	end.global_position.y = end_pos
 	body.scale.y = (head_pos - end_pos) / 100.0
 
+
+func init() -> void:
+	pass
+
+
 func reset() -> void:
 	time = 0.0
 	end_time = 0.0
 	modulate = Color.WHITE
+	modulate.a = 1.0
 	visible = false
 	hited = false
 	holding = false
+	head.position.y = 0
+	end.position.y = 0
+	body.scale.y = 1

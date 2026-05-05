@@ -54,7 +54,7 @@ func _ready() -> void:
 	set_process_input(false)
 	pause = true
 	line_y = tracks.line_Y
-
+	
 	if load_beatmap(chart_path): return
 	start()
 	
@@ -82,12 +82,7 @@ func restart(_chart_path :String) -> void:
 	tap_pool.recycle_all_nodes()
 	hold_pool.recycle_all_nodes()
 	active_notes.clear()
-	judgment.judgment_list.clear()
-	for i in key_quantity:
-		judgment.judgment_list.append([])
-	judgment.rating_init()
-	judgment.combo = 0
-	judgment.max_combo = 0
+	judgment.init()
 	
 	if chart_path != _chart_path:
 		if load_beatmap(_chart_path) != OK: printerr("重开失败"); return
@@ -125,7 +120,8 @@ func spawn_notes() -> void:
 		note.track = note_data[&"track_index"]
 		note.scale.x = tracks.track_H / 100.0
 		note.position.x = note.track * tracks.track_H
-		if note.type == &"hold": note.end_time = note_data[&"end_time"]
+		if note.type == &"hold":
+			note.end_time = note_data[&"end_time"]
 		
 		match key_quantity:
 			4: note.modulate = Color("4da6ffff") if note.track == 1 or note.track == 2 else Color.WHITE
@@ -137,6 +133,7 @@ func spawn_notes() -> void:
 		active_notes.append(note)
 		spawn += 1
 		notes_data_index += 1
+		update_note(note)
 		
 
 ## 更新note位置
@@ -165,7 +162,7 @@ func update_note(note: Node2D) -> void:
 			note.global_position.y = line_y - calculate_distance(music_time, note.time)
 		&"hold":
 			note.global_position.y = line_y - calculate_distance(music_time, note.time)
-			if note.holding and note.time < music_time:
+			if note.hited and note.holding and note.time <= music_time:
 				note.set_length(line_y - calculate_distance(music_time, note.end_time), line_y)
 			else:
 				note.set_length(line_y - calculate_distance(music_time, note.end_time))
@@ -208,32 +205,43 @@ func recycle_expired_notes() -> void:
 					expired_notes.append(note)
 					continue
 				
-				var expired_time :float = music_time - judgment.JUDGE_WINDOW if !auto_play else music_time
-				if note.time < expired_time:
-					if auto_play:
+				if auto_play and not judgment.judgment_list[note.track].is_empty() and judgment.judgment_list[note.track].front() == note:
+					if abs(note.time - music_time) <= judgment.RatingRange.Perfect:
 						judgment.lights[note.track].modulate.a = 1.0
-						judgment.hit(note.track)
-					else:
-						if !note.hited:
-							judgment.rating.Miss += 1
-							judgment.combo = 0
-							judgment.rating_L.show_rating(4)
+						if (not note.hited) and judgment.judgment_list[note.track].has(note):
+							judgment.hit(note.track)
+				
+				elif note.time < music_time - judgment.JUDGE_WINDOW and !note.hited:
+					note.hited = true
+					judgment.rating.Miss += 1
+					judgment.combo = 0
+					judgment.rating_L.show_rating(4)
 					expired_notes.append(note)
 			&"hold":
-				var expired_time :float = music_time - judgment.JUDGE_WINDOW if !auto_play else music_time
-				if note.time < expired_time:
-					if auto_play:
+				if auto_play and not judgment.judgment_list[note.track].is_empty() and judgment.judgment_list[note.track].front() == note:
+					if abs(note.time - music_time) <= judgment.RatingRange.Perfect:
 						judgment.lights[note.track].modulate.a = 1.0
-						judgment.hit(note.track)
-					else:
-						if !note.hited:
-							judgment.rating.Miss += 1
-							judgment.combo = 0
-							judgment.rating_L.show_rating(4)
-						if !note.holding and abs(music_time - judgment.RatingRange.Bad - note.end_time) <= judgment.RatingRange.Bad:
-							note.modulate.a = 0.5
+						if (not note.hited) and judgment.judgment_list[note.track].has(note):
+							judgment.hit(note.track)
 				
-				if(note.end_time < expired_time and note.holding) or (note.end.global_position.y > 1080.0):
+				if auto_play and note.hited and note.holding:
+					if abs(note.end_time - music_time) <= judgment.RatingRange.Perfect:
+						note.holding = false
+						if judgment.release_list[note.track].has(note):
+							judgment.release_list[note.track].erase(note)
+						judgment.judgment(note.end_time, music_time)
+						note.set_length(note.head.global_position.y+10)
+				
+				elif note.time < music_time - judgment.JUDGE_WINDOW and !note.hited:
+					note.hited = true
+					judgment.rating.Miss += 1
+					judgment.combo = 0
+					judgment.rating_L.show_rating(4)
+				
+				if !note.holding and note.end_time - music_time < judgment.RatingRange.Bad:
+					note.modulate.a = 0.5
+				
+				if note.end_time - music_time < judgment.RatingRange.Miss and note.end.global_position.y > 1080.0:
 					expired_notes.append(note)
 		
 	while expired_notes.size() > 0:
@@ -313,11 +321,7 @@ func load_beatmap(_chart_path :String) -> Error:
 	tracks.key_quantity = key_quantity
 	judgment.key_map = Setting.key_binding[key_quantity]
 	
-	judgment.judgment_list.clear()
-	judgment.release_list.clear()
-	for i in key_quantity:
-		judgment.judgment_list.append([])
-		judgment.release_list.append([])
+	judgment.init()
 	
 	var pos :Vector2 = Vector2(tracks.position.x - tracks.track_H * key_quantity / 2, 0.0)
 	tap_pool.global_position = pos

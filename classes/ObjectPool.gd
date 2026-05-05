@@ -49,6 +49,8 @@ func acquire_node() -> Node2D:
 	var node = pool.pop_back()
 	if !is_instance_valid(node): node = _create_node()
 	
+	node.init()
+	
 	active_nodes[node] = true
 	node.visible = true
 	node.process_mode = Node.PROCESS_MODE_INHERIT
