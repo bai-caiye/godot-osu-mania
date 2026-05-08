@@ -85,12 +85,12 @@ func hit(track :int, time :float) -> void:
 		if note.type == &"hold":
 			note.holding = true
 			release_list[track].append(note)
-		judgment_list[track].erase(note)
 		judgment(note.time, time)
+		judgment_list[track].erase(note)
+
 
 func released(track :int, time :float) -> void:
 	var note :Node2D = release_list[track].pop_front()
-	
 	if note and note.type == &"hold" and note.hited:
 		note.holding = false
 		note.released = true

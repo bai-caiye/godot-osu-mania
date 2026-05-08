@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://di540o7ct7cpu"]
 
-[ext_resource type="Script" uid="uid://cewpisdnjhlpj" path="res://scenes/game/tracks.gd" id="1_q8g2o"]
+[ext_resource type="Script" uid="uid://cewpisdnjhlpj" path="res://scenes/game/UI/tracks.gd" id="1_q8g2o"]
+[ext_resource type="PackedScene" uid="uid://bhgfto8pvq86f" path="res://scenes/game/UI/track.tscn" id="2_lp400"]
 
 [sub_resource type="Gradient" id="Gradient_yoeob"]
 interpolation_mode = 2
@@ -22,13 +23,13 @@ mouse_filter = 2
 script = ExtResource("1_q8g2o")
 key_quantity = 4
 track_H = 70.0
-track_A = 0.9
+track_A = 0.7
 line_Y = 850.0
-tracks = [NodePath("tracks/track1"), NodePath("tracks/track2"), NodePath("tracks/track3"), NodePath("tracks/track4"), NodePath("tracks/track5"), NodePath("tracks/track6"), NodePath("tracks/track7"), NodePath("tracks/track8"), NodePath("tracks/track9"), NodePath("tracks/track10")]
+tracks = [NodePath("HBoxContainer/tracks/track1"), NodePath("HBoxContainer/tracks/track2"), NodePath("HBoxContainer/tracks/track3"), NodePath("HBoxContainer/tracks/track4"), NodePath("HBoxContainer/tracks/track5"), NodePath("HBoxContainer/tracks/track6"), NodePath("HBoxContainer/tracks/track7"), NodePath("HBoxContainer/tracks/track8"), NodePath("HBoxContainer/tracks/track9"), NodePath("HBoxContainer/tracks/track10")]
 lights = [NodePath("Line/lights/TextureRect"), NodePath("Line/lights/TextureRect2"), NodePath("Line/lights/TextureRect3"), NodePath("Line/lights/TextureRect4"), NodePath("Line/lights/TextureRect5"), NodePath("Line/lights/TextureRect6"), NodePath("Line/lights/TextureRect7"), NodePath("Line/lights/TextureRect8"), NodePath("Line/lights/TextureRect9"), NodePath("Line/lights/TextureRect10")]
 line = NodePath("Line")
 
-[node name="tracks" type="HBoxContainer" parent="." unique_id=2060329434]
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=152778377]
 layout_mode = 1
 anchors_preset = 13
 anchor_left = 0.5
@@ -39,87 +40,83 @@ grow_vertical = 2
 theme_override_constants/separation = 0
 alignment = 1
 
-[node name="track1" type="ColorRect" parent="tracks" unique_id=508214447]
-modulate = Color(1, 1, 1, 0.9)
-custom_minimum_size = Vector2(70, 0)
+[node name="ColorRect2" type="ColorRect" parent="HBoxContainer" unique_id=297169976]
+z_index = 1
+custom_minimum_size = Vector2(4, 0)
 layout_mode = 2
-mouse_filter = 2
-color = Color(0, 0, 0, 0.745098)
+color = Color(0.1, 0.1, 0.1, 1)
 
-[node name="track2" type="ColorRect" parent="tracks" unique_id=1912125154]
-modulate = Color(1, 1, 1, 0.9)
-custom_minimum_size = Vector2(70, 0)
+[node name="tracks" type="HBoxContainer" parent="HBoxContainer" unique_id=2060329434]
 layout_mode = 2
-mouse_filter = 2
-color = Color(0, 0, 0, 0.745098)
+theme_override_constants/separation = 0
+alignment = 1
 
-[node name="track3" type="ColorRect" parent="tracks" unique_id=1058007419]
-modulate = Color(1, 1, 1, 0.9)
-custom_minimum_size = Vector2(70, 0)
+[node name="track1" parent="HBoxContainer/tracks" unique_id=1380217950 instance=ExtResource("2_lp400")]
+modulate = Color(1, 1, 1, 0.7)
 layout_mode = 2
-mouse_filter = 2
-color = Color(0, 0, 0, 0.745098)
+color = Color(0, 0, 0, 1)
 
-[node name="track4" type="ColorRect" parent="tracks" unique_id=1497050582]
-modulate = Color(1, 1, 1, 0.9)
-custom_minimum_size = Vector2(70, 0)
+[node name="track2" parent="HBoxContainer/tracks" unique_id=638853253 instance=ExtResource("2_lp400")]
+modulate = Color(1, 1, 1, 0.7)
 layout_mode = 2
-mouse_filter = 2
-color = Color(0, 0, 0, 0.745098)
+color = Color(0, 0, 0, 1)
 
-[node name="track5" type="ColorRect" parent="tracks" unique_id=577457003]
+[node name="track3" parent="HBoxContainer/tracks" unique_id=772228070 instance=ExtResource("2_lp400")]
+modulate = Color(1, 1, 1, 0.7)
+layout_mode = 2
+color = Color(0, 0, 0, 1)
+
+[node name="track4" parent="HBoxContainer/tracks" unique_id=1881764500 instance=ExtResource("2_lp400")]
+modulate = Color(1, 1, 1, 0.7)
+layout_mode = 2
+color = Color(0, 0, 0, 1)
+
+[node name="track5" parent="HBoxContainer/tracks" unique_id=950032847 instance=ExtResource("2_lp400")]
 visible = false
-modulate = Color(1, 1, 1, 0.9)
-custom_minimum_size = Vector2(70, 0)
+modulate = Color(1, 1, 1, 0.7)
 layout_mode = 2
-mouse_filter = 2
-color = Color(0, 0, 0, 0.745098)
+color = Color(0, 0, 0, 1)
 
-[node name="track6" type="ColorRect" parent="tracks" unique_id=1295891182]
+[node name="track6" parent="HBoxContainer/tracks" unique_id=209535473 instance=ExtResource("2_lp400")]
 visible = false
-modulate = Color(1, 1, 1, 0.9)
-custom_minimum_size = Vector2(70, 0)
+modulate = Color(1, 1, 1, 0.7)
 layout_mode = 2
-mouse_filter = 2
-color = Color(0, 0, 0, 0.745098)
+color = Color(0, 0, 0, 1)
 
-[node name="track7" type="ColorRect" parent="tracks" unique_id=1266122647]
+[node name="track7" parent="HBoxContainer/tracks" unique_id=2014242405 instance=ExtResource("2_lp400")]
 visible = false
-modulate = Color(1, 1, 1, 0.9)
-custom_minimum_size = Vector2(70, 0)
+modulate = Color(1, 1, 1, 0.7)
 layout_mode = 2
-mouse_filter = 2
-color = Color(0, 0, 0, 0.745098)
+color = Color(0, 0, 0, 1)
 
-[node name="track8" type="ColorRect" parent="tracks" unique_id=594941222]
+[node name="track8" parent="HBoxContainer/tracks" unique_id=895085525 instance=ExtResource("2_lp400")]
 visible = false
-modulate = Color(1, 1, 1, 0.9)
-custom_minimum_size = Vector2(70, 0)
+modulate = Color(1, 1, 1, 0.7)
 layout_mode = 2
-mouse_filter = 2
-color = Color(0, 0, 0, 0.745098)
+color = Color(0, 0, 0, 1)
 
-[node name="track9" type="ColorRect" parent="tracks" unique_id=1749355364]
+[node name="track9" parent="HBoxContainer/tracks" unique_id=572967189 instance=ExtResource("2_lp400")]
 visible = false
-modulate = Color(1, 1, 1, 0.9)
-custom_minimum_size = Vector2(70, 0)
+modulate = Color(1, 1, 1, 0.7)
 layout_mode = 2
-mouse_filter = 2
-color = Color(0, 0, 0, 0.745098)
+color = Color(0, 0, 0, 1)
 
-[node name="track10" type="ColorRect" parent="tracks" unique_id=297066541]
+[node name="track10" parent="HBoxContainer/tracks" unique_id=1691647614 instance=ExtResource("2_lp400")]
 visible = false
-modulate = Color(1, 1, 1, 0.9)
-custom_minimum_size = Vector2(70, 0)
+modulate = Color(1, 1, 1, 0.7)
 layout_mode = 2
-mouse_filter = 2
-color = Color(0, 0, 0, 0.745098)
+color = Color(0, 0, 0, 1)
+
+[node name="ColorRect" type="ColorRect" parent="HBoxContainer" unique_id=976413214]
+z_index = 1
+custom_minimum_size = Vector2(4, 0)
+layout_mode = 2
+color = Color(0.1, 0.1, 0.1, 1)
 
 [node name="Line" type="ColorRect" parent="." unique_id=1745143330]
 z_index = 10
 custom_minimum_size = Vector2(280, 3)
-layout_mode = 1
-anchors_preset = 8
+layout_mode = 0
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5

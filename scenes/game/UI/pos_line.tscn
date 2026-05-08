@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://cqnjqopnxxvt3"]
+
+[ext_resource type="Script" uid="uid://dll0rx12bvofv" path="res://scenes/game/UI/pos_line.gd" id="1_b7kte"]
+
+[node name="PosLine" type="ColorRect" unique_id=1462713611]
+offset_left = -2.0
+offset_top = -10.0
+offset_right = 2.0
+offset_bottom = 10.0
+pivot_offset = Vector2(2, 10)
+script = ExtResource("1_b7kte")

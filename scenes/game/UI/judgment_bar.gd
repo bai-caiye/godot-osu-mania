@@ -7,7 +7,6 @@ var lines :Array[Node]= []
 func add_line(dt :float, color :int) -> void:
 	for line in lines:
 		line.modulate.a -= 0.025
-		line.modulate.v -= 0.05
 	
 	var node :Control = pos_line_pool.acquire_node()
 	match color:
@@ -17,7 +16,7 @@ func add_line(dt :float, color :int) -> void:
 		3: node.modulate = Color(0.27, 0.72, 1.0, 1.0)
 		4: node.modulate = Color(0.78, 0.187, 0.671, 1.0)
 		5: node.modulate = Color(0.85, 0.221, 0.221, 1.0)
-	node.modulate.v = 1.5
+	node.modulate.v = 1.2
 	node.position.x = snapped(clampf(dt, -0.18, 0.18) / 0.18, 0.001) * 125.0 
 	lines.append(node)
 	if lines.size() > 50:

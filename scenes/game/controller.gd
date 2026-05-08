@@ -115,17 +115,18 @@ func _process(delta: float) -> void:
 
 
 func auto_playing()-> void:
+	var c_music_time :float = music_time
 	for track in range(judgment.judgment_list.size()):
-		if not judgment.judgment_list[track].is_empty():
-			var note: Node2D = judgment.judgment_list[track].front()
-			if note and !note.hited and note.time - music_time <= 0.0:
-				judgment.hit(track)
-	
+		if judgment.judgment_list[track].is_empty(): continue
+		var note: Node2D = judgment.judgment_list[track].front()
+		if note and !note.hited and note.time - c_music_time <= 0.0:
+			judgment.hit(track, note.time)
+		
 	for track in range(judgment.release_list.size()):
-		if not judgment.release_list[track].is_empty():
-			var note: Node2D = judgment.release_list[track].front()
-			if note and !note.released and note.end_time - music_time <= 0.0:
-				judgment.released(track)
+		if judgment.release_list[track].is_empty(): continue
+		var note: Node2D = judgment.release_list[track].front()
+		if note and !note.released and note.end_time - c_music_time <= 0.0:
+			judgment.released(track, note.end_time)
 
 
 ## 生成note
@@ -134,27 +135,29 @@ func spawn_notes() -> void:
 	while spawn < key_quantity and notes_data_index < notes_data.size():
 		var note_data: Dictionary = notes_data[notes_data_index]
 		if note_data[&"time"] - music_time > note_data[&"lead_time"]: break
-		
-		var note: Node2D = acquire_note(note_data[&"type"])
-		note.time = note_data[&"time"]
-		note.track = note_data[&"track_index"]
-		note.scale.x = tracks.track_H / 100.0
-		note.position.x = note.track * tracks.track_H
-		if note.type == &"hold":
-			note.end_time = note_data[&"end_time"]
-		
-		match key_quantity:
-			4: note.modulate = Color("4da6ffff") if note.track == 1 or note.track == 2 else Color.WHITE
-			7:
-				if note.track == 3:
-					note.modulate = Color("ffcc4dff")
-				else:
-					note.modulate = Color("4da6ffff") if note.track in [1,5] else Color.WHITE
-		active_notes.append(note)
+		spawn_note(note_data)
 		spawn += 1
 		notes_data_index += 1
-		update_note(note)
-		
+
+
+func spawn_note(note_data :Dictionary) -> void:
+	var note: Node2D = acquire_note(note_data[&"type"])
+	note.time = note_data[&"time"]
+	note.track = note_data[&"track_index"]
+	note.scale.x = tracks.track_H / 100.0
+	note.position.x = note.track * tracks.track_H
+	if note.type == &"hold":
+		note.end_time = note_data[&"end_time"]
+	
+	match key_quantity:
+		4: note.modulate = Color("4da6ffff") if note.track == 1 or note.track == 2 else Color.WHITE
+		7:
+			if note.track == 3:
+				note.modulate = Color("ffcc4dff")
+			else:
+				note.modulate = Color("4da6ffff") if note.track in [1,5] else Color.WHITE
+	active_notes.append(note)
+
 
 ## 更新note位置
 func update_active_notes() -> void:

@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://bhgfto8pvq86f"]
+
+[ext_resource type="Shader" uid="uid://cte5dy8keodjk" path="res://shader/blur_kawase.gdshader" id="1_imnps"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_d00u1"]
+shader = ExtResource("1_imnps")
+shader_parameter/radius = 4.00000019
+
+[node name="track" type="ColorRect" unique_id=1380217950]
+modulate = Color(1, 1, 1, 0.9)
+custom_minimum_size = Vector2(70, 0)
+mouse_filter = 2
+color = Color(0, 0, 0, 0.745098)
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1978891921]
+show_behind_parent = true
+material = SubResource("ShaderMaterial_d00u1")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
