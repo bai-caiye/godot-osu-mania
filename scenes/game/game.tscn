@@ -17,7 +17,7 @@ process_priority = -1
 process_physics_priority = -1
 script = ExtResource("2_33cqm")
 chart_path = "res://test/351345 Randy Mortimer - Penguin (Pinnacle Remix)/Randy Mortimer - Penguin (Pinnacle Remix) (Cuppp) [7K].osu"
-auto_play = true
+speed = 1000.0
 bg = NodePath("CanvasLayer/BG")
 music = NodePath("Music")
 tracks = NodePath("CanvasLayer/Tracks")
@@ -78,7 +78,6 @@ j_pos = NodePath("../JPos")
 process_priority = 1
 
 [node name="Lead-inTimer" type="Timer" parent="." unique_id=1496072064]
-process_mode = 1
 wait_time = 1.6
 one_shot = true
 

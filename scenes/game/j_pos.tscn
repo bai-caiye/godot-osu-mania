@@ -24,6 +24,47 @@ offset_left = 15.0
 offset_top = 11.0
 offset_right = 265.0
 offset_bottom = 14.0
+color = Color(0.47, 0.065799996, 0.065799996, 1)
+
+[node name="ColorRect3" type="ColorRect" parent="ColorRect" unique_id=1990714960]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 11.0
+offset_right = 255.0
+offset_bottom = 14.0
+color = Color(0.71, 0.085200004, 0.46008024, 1)
+
+[node name="ColorRect4" type="ColorRect" parent="ColorRect" unique_id=2121350222]
+layout_mode = 0
+offset_left = 44.0
+offset_top = 11.0
+offset_right = 236.5
+offset_bottom = 14.0
+color = Color(0.2784, 0.6192, 0.96, 1)
+
+[node name="ColorRect5" type="ColorRect" parent="ColorRect" unique_id=1308479730]
+layout_mode = 0
+offset_left = 88.0
+offset_top = 11.0
+offset_right = 192.0
+offset_bottom = 14.0
+color = Color(0.22953993, 0.69, 0.15870002, 1)
+
+[node name="ColorRect6" type="ColorRect" parent="ColorRect" unique_id=1127014024]
+layout_mode = 0
+offset_left = 109.0
+offset_top = 11.0
+offset_right = 171.5
+offset_bottom = 14.0
+color = Color(0.91, 0.86146677, 0.182, 1)
+
+[node name="ColorRect7" type="ColorRect" parent="ColorRect" unique_id=1074131764]
+layout_mode = 0
+offset_left = 129.0
+offset_top = 11.0
+offset_right = 151.9
+offset_bottom = 14.0
+color = Color(1, 0.9607843, 0.4117647, 1)
 
 [node name="PosLinePool" type="Node2D" parent="." unique_id=962299390]
 script = ExtResource("2_igr8j")

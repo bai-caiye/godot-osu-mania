@@ -2,7 +2,9 @@ extends ColorRect
 
 
 func init() -> void:
-	modulate.a = 1
+	pass
 
 func reset() -> void:
+	modulate = Color.WHITE
+	modulate.a = 1
 	position.x = 0

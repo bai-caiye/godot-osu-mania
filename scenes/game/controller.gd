@@ -20,7 +20,10 @@ var pause :bool = false:
 	set(v):
 		pause = v
 		music.stream_paused = pause
+		lead_in_timer.paused = pause
 		set_process(!pause)
+		judgment.set_process_unhandled_key_input(!pause)
+		
 
 var chart: PackedStringArray  ## 谱面文本
 var beatmap_data: Dictionary  ## 谱面信息
@@ -50,7 +53,6 @@ func _unhandled_key_input(event: InputEvent) -> void:
 
 ## 初始化
 func _ready() -> void:
-	set_physics_process(false)
 	set_process_input(false)
 	pause = true
 	line_y = tracks.line_Y
@@ -63,18 +65,20 @@ func start() -> void:
 	music_time = 0.0 - lead_in_timer.wait_time
 	lead_in_timer.start()
 	pause = false
+	music.stop()
 	
 	await lead_in_timer.timeout
 	
 	if pause: return
-	music.play()
+	music_time = 0.0
+	music.play(0.0)
 	music_time = get_music_position()
 
 
 ## 重开
 func restart(_chart_path :String) -> void:
 	pause = true
-	if music.stream: music.stop()
+	music.stop()
 	
 	notes_data_index = 0
 	current_timing_index = -1
@@ -213,6 +217,7 @@ func calculate_distance(from_time: float, to_time: float) -> float:
 
 ## 回收对象
 func recycle_expired_notes() -> void:
+	var c_music_time :float = music_time
 	for i in active_notes.size():
 		var note :Node2D = active_notes[i]
 		match note.type:
@@ -221,23 +226,23 @@ func recycle_expired_notes() -> void:
 					expired_notes.append(note)
 					continue
 				
-				if note.time - music_time < -judgment.RatingRange.Miss and !expired_notes.has(note):
-					judgment.judgment(note.time, music_time)
+				if note.time - c_music_time <= -judgment.RatingRange.Miss and !expired_notes.has(note):
+					judgment.judgment(note.time, c_music_time)
 					expired_notes.append(note)
 				
 			&"hold":
-				var dt :float = note.time - music_time
-				if (dt < -judgment.RatingRange.Miss or note.hited) and (not note.holding) and note.modulate.a != 0.5:
+				var dt :float = note.time - c_music_time
+				if (dt <= -judgment.RatingRange.Miss or note.hited) and (not note.holding) and note.modulate.a != 0.5:
 					note.modulate.a = 0.5
 					if dt < -judgment.RatingRange.Miss:
-						judgment.judgment(note.time, music_time)
+						judgment.judgment(note.time, c_music_time)
 				
-				var edt: float = note.end_time - music_time
-				if (edt < -judgment.RatingRange.Bad or (note.holding and edt <= -judgment.RatingRange.Good)) and !note.released:
+				var edt: float = note.end_time - c_music_time
+				if (edt <= -judgment.RatingRange.Miss or (note.holding and edt <= -judgment.RatingRange.Good)) and !note.released:
 					if judgment.release_list[note.track].has(note):
 						judgment.release_list[note.track].erase(note)
 					note.released = true
-					judgment.judgment(note.end_time, music_time)
+					judgment.judgment(note.end_time, c_music_time)
 					
 				if edt < -judgment.RatingRange.Bad and note.end.global_position.y > 1080.0:
 					expired_notes.append(note)
