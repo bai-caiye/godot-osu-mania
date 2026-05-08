@@ -42,6 +42,9 @@ class_name Tracks
 @export var line: ColorRect
 
 
+func _ready() -> void:
+	set_line()
+
 func set_line() -> void:
 	if !line: return
 	line.global_position.y = line_Y

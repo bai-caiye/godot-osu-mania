@@ -70,7 +70,7 @@ func recycle_node(node: Node) -> void:
 
 ## 回收所有节点 会释放超出 [member pool_size] 的节点 且清除在 [member active_nodes] 的无效节点
 func recycle_all_nodes() -> void:
-	for node :Node in active_nodes.keys():
+	for node in active_nodes.keys():
 		if !is_instance_valid(node): continue
 		_recycle_reset(node)
 		pool.append(node)

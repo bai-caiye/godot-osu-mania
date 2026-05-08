@@ -87,13 +87,9 @@ one_shot = true
 process_mode = 1
 top_level = true
 custom_minimum_size = Vector2(0, 3)
-anchors_preset = 12
-anchor_top = 1.0
+anchors_preset = 10
 anchor_right = 1.0
-anchor_bottom = 1.0
-offset_top = -3.0
 grow_horizontal = 2
-grow_vertical = 0
 mouse_filter = 2
 color = Color(1, 1, 1, 0.5882353)
 script = ExtResource("3_lnu2h")
@@ -117,9 +113,6 @@ grow_vertical = 2
 theme_override_font_sizes/font_size = 36
 horizontal_alignment = 1
 
-[node name="TestMenu" parent="." unique_id=179995671 instance=ExtResource("8_87uf6")]
-metadata/_edit_lock_ = true
-
 [node name="rating" parent="." unique_id=1738127207 instance=ExtResource("9_2a8rs")]
 top_level = true
 z_index = 6
@@ -136,12 +129,15 @@ metadata/_edit_lock_ = true
 
 [node name="JudgmentBar" parent="." unique_id=233045596 instance=ExtResource("10_4j704")]
 top_level = true
-anchors_preset = -1
+anchors_preset = 7
 anchor_left = 0.5
-anchor_top = 0.96500003
+anchor_top = 1.0
 anchor_right = 0.5
-anchor_bottom = 0.96500003
-offset_top = -0.20007324
-offset_bottom = -0.20007324
+anchor_bottom = 1.0
+offset_top = -12.0
+offset_bottom = -12.0
 grow_horizontal = 2
-grow_vertical = 2
+grow_vertical = 0
+
+[node name="TestMenu" parent="." unique_id=179995671 instance=ExtResource("8_87uf6")]
+metadata/_edit_lock_ = true

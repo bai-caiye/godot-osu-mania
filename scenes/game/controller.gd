@@ -4,7 +4,7 @@ extends Node2D
 @export_global_file("*.osu") var chart_path: String
 @export var auto_play :bool = false
 @export var speed: float = 1500         ## 整体速度
-@export var offset: float = 0.0         ## 整体偏移
+@export_range(-1.0, 1.0) var offset: float = 0.0         ## 整体偏移
 
 @export_group("Node")
 @export var bg: TextureRect  ## 背景图片
@@ -51,9 +51,75 @@ func _unhandled_key_input(event: InputEvent) -> void:
 			KEY_ESCAPE:
 				pause = !pause
 
+## 加载谱面
+func load_beatmap(_chart_path :String) -> Error:
+	var beatmap := SongLoader.load_beatmap(_chart_path)
+	if beatmap.chart.is_empty(): printerr("谱面读取错误"); return ERR_UNAVAILABLE
+	
+	var beatmap_temp_data = SongLoader.load_beatmap_data(beatmap.chart)
+	if beatmap_temp_data.is_empty(): printerr("谱面信息读取错误"); return ERR_UNAVAILABLE
+	
+	if !is_instance_valid(beatmap.music): return ERR_UNAVAILABLE
+	bg.texture = beatmap.image
+	music.stream = beatmap.music
+	chart = beatmap.chart
+	beatmap_data = beatmap_temp_data.duplicate(true)
+	beatmap_temp_data = null
+	
+	key_quantity = beatmap_data[&"CircleSize"]
+	tracks.key_quantity = key_quantity
+	judgment.key_map = Setting.key_binding[key_quantity]
+	
+	judgment.init()
+	
+	var pos :Vector2 = Vector2(tracks.position.x - tracks.track_H * key_quantity / 2, 0.0)
+	tap_pool.global_position = pos
+	hold_pool.global_position = pos
+	progress_bar.length = music.stream.get_length()
+	
+	load_timing_points(chart)
+	load_notes_data(chart)
+	note_quantity = notes_data.size()
+	precalculate_lead_times()
+	return OK
+
+
+## 加载timing_points
+func load_timing_points(_chart: PackedStringArray) -> void:
+	timing_points.clear()
+	var index: int = chart.find("[TimingPoints]") + 1
+	while index < _chart.size() and _chart[index] != "": 
+		var uninheritedint :int = int(_chart[index].get_slice(",", 6))
+		if uninheritedint == 0:
+			timing_points.append([
+			FormatConvert.time(_chart[index].get_slice(",", 0)),
+			-100.0 / float(_chart[index].get_slice(",", 1))])
+		index += 1
+
+
+## 加载音符数据
+func load_notes_data(_chart: PackedStringArray) -> void:
+	notes_data.clear()
+	var index: int = _chart.find("[HitObjects]") + 1
+	while index < _chart.size() - 1:
+		var line: String = _chart[index]
+		if line.is_empty():
+			index += 1
+			continue
+		
+		var note_data :Dictionary = {
+			&"type": FormatConvert.type(line.get_slice(",", 3)),
+			&"time": FormatConvert.time(line.get_slice(",", 2)) - chart_offset,
+			&"end_time": FormatConvert.time(line.get_slice(",", 5).get_slice(":", 0)) - chart_offset,
+			&"track_index": FormatConvert.track(line.get_slice(",", 0), key_quantity),
+			&"lead_time": 0.0
+		}
+		if note_data[&"end_time"] <= 0.0: note_data[&"end_time"] = 0.0
+		notes_data.append(note_data)
+		index += 1
+
 ## 初始化
 func _ready() -> void:
-	set_process_input(false)
 	pause = true
 	line_y = tracks.line_Y
 	
@@ -61,8 +127,7 @@ func _ready() -> void:
 	start()
 	
 func start() -> void:
-	lead_in_timer.wait_time = 1.6 + offset
-	music_time = 0.0 - lead_in_timer.wait_time
+	music_time = 0.0 - lead_in_timer.wait_time + offset
 	lead_in_timer.start()
 	pause = false
 	music.stop()
@@ -70,9 +135,8 @@ func start() -> void:
 	await lead_in_timer.timeout
 	
 	if pause: return
-	music_time = 0.0
 	music.play(0.0)
-	music_time = get_music_position()
+	music_time = get_music_position() 
 
 
 ## 重开
@@ -95,7 +159,7 @@ func restart(_chart_path :String) -> void:
 
 ## 获取音乐时间的精准位置
 func get_music_position() -> float:
-	return music.get_playback_position()+AudioServer.get_time_since_last_mix()-AudioServer.get_output_latency()
+	return music.get_playback_position()+AudioServer.get_time_since_last_mix()-AudioServer.get_output_latency()+offset
 
 ## 主要循环
 func _process(delta: float) -> void:
@@ -307,74 +371,6 @@ func push_timing_index() -> void:
 	while current_timing_index + 1 < timing_points.size() and music_time >= timing_points[current_timing_index + 1][0]:
 		current_timing_index += 1
 
-
-## 加载谱面
-func load_beatmap(_chart_path :String) -> Error:
-	var beatmap := SongLoader.load_beatmap(_chart_path)
-	if beatmap.chart.is_empty(): printerr("谱面读取错误"); return ERR_UNAVAILABLE
-	
-	var beatmap_temp_data = SongLoader.load_beatmap_data(beatmap.chart)
-	if beatmap_temp_data.is_empty(): printerr("谱面信息读取错误"); return ERR_UNAVAILABLE
-	
-	if !is_instance_valid(beatmap.music): return ERR_UNAVAILABLE
-	bg.texture = beatmap.image
-	music.stream = beatmap.music
-	chart = beatmap.chart
-	beatmap_data = beatmap_temp_data.duplicate(true)
-	beatmap_temp_data = null
-	
-	key_quantity = beatmap_data[&"CircleSize"]
-	tracks.key_quantity = key_quantity
-	judgment.key_map = Setting.key_binding[key_quantity]
-	
-	judgment.init()
-	
-	var pos :Vector2 = Vector2(tracks.position.x - tracks.track_H * key_quantity / 2, 0.0)
-	tap_pool.global_position = pos
-	hold_pool.global_position = pos
-	progress_bar.length = music.stream.get_length()
-	
-	load_timing_points(chart)
-	load_notes_data(chart)
-	note_quantity = notes_data.size()
-	precalculate_lead_times()
-	return OK
-
-
-## 加载timing_points
-func load_timing_points(_chart: PackedStringArray) -> void:
-	timing_points.clear()
-	var index: int = chart.find("[TimingPoints]") + 1
-	while index < _chart.size() and _chart[index] != "": 
-		var uninheritedint :int = int(_chart[index].get_slice(",", 6))
-		if uninheritedint == 0:
-			timing_points.append([
-			c_time(_chart[index].get_slice(",", 0)),
-			-100.0 / float(_chart[index].get_slice(",", 1))])
-		index += 1
-
-
-## 加载音符数据
-func load_notes_data(_chart: PackedStringArray) -> void:
-	notes_data.clear()
-	var index: int = _chart.find("[HitObjects]") + 1
-	while index < _chart.size() - 1:
-		var line: String = _chart[index]
-		if line.is_empty():
-			index += 1
-			continue
-		
-		var note_data :Dictionary = {
-			&"type": conversion_type(line.get_slice(",", 3)),
-			&"time": c_time(line.get_slice(",", 2)) - chart_offset,
-			&"end_time": c_time(line.get_slice(",", 5).get_slice(":", 0)) - chart_offset,
-			&"track_index": conversion_track(line.get_slice(",", 0)),
-			&"lead_time": 0.0
-		}
-		if note_data[&"end_time"] <= 0.0: note_data[&"end_time"] = 0.0
-		notes_data.append(note_data)
-		index += 1
-
 ## 取出note
 func acquire_note(type :StringName) -> Node2D:
 	match type:
@@ -390,16 +386,3 @@ func recycle_note(note :Node2D) -> void:
 			note.head.position.y = 0.0
 			hold_pool.recycle_node(note)
 		_: return tap_pool.recycle_node(note)
-
-func conversion_type(x) -> StringName:
-	match int(x):
-		128: return &"hold"
-		_: return &"tap"
-
-
-func conversion_track(x) -> int:
-	return int(float(int(x) * key_quantity) / 512.0)
-
-
-func c_time(time) -> float:
-	return float(time) / 1000.0
