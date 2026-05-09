@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://wqqh7la6s4bf"]
 
-[ext_resource type="Texture2D" uid="uid://bbb0suuio5agg" path="res://assets/image/ratings.png" id="1_017f4"]
+[ext_resource type="Texture2D" uid="uid://bbb0suuio5agg" path="res://assets/image/skin/ratings.png" id="1_017f4"]
 [ext_resource type="Script" uid="uid://d1gjc4sopg3qg" path="res://scenes/game/UI/rating.gd" id="1_tiyic"]
 
 [sub_resource type="Animation" id="Animation_1rthw"]

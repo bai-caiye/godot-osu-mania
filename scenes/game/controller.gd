@@ -3,8 +3,8 @@ extends Node2D
 @export_group("Option")
 @export_global_file("*.osu") var chart_path: String
 @export var auto_play :bool = false
-@export var speed: float = 1500         ## 整体速度
-@export_range(-1.0, 1.0) var offset: float = 0.0         ## 整体偏移
+@export_range(10.0, 10000.0) var speed: float = 1500   ## 整体速度
+@export_range(-1.0, 1.0) var offset: float = 0.0       ## 整体偏移
 
 @export_group("Node")
 @export var bg: TextureRect  ## 背景图片
@@ -36,11 +36,11 @@ var notes_data_index: int = 0
 var active_notes: Array[Node2D] = []    ## 活动的音符 移动note
 var expired_notes :Array[Node2D] = []   ## 回收缓存 用于存放要在帧末回收的note
 
-var line_y: float = 800.0           ## 判定线的高度
-var timing_points: Array = []       ## 时间点数组
+var line_y: float = 800.0               ## 判定线的高度
+var timing_points: Array = []           ## 时间点数组
 var current_timing_index: int = -1
-var music_time: float = 0.0         ## 当前音乐播放时间
-var chart_offset :float = 0.0             ## 默认偏移
+var music_time: float = 0.0             ## 当前音乐播放时间
+var chart_offset :float = 0.0           ## 默认偏移
 
 
 func _unhandled_key_input(event: InputEvent) -> void:
@@ -214,12 +214,12 @@ func spawn_note(note_data :Dictionary) -> void:
 		note.end_time = note_data[&"end_time"]
 	
 	match key_quantity:
-		4: note.modulate = Color("4da6ffff") if note.track == 1 or note.track == 2 else Color.WHITE
+		4: note.modulate = Color("66b3ffff") if note.track == 1 or note.track == 2 else Color.WHITE
 		7:
 			if note.track == 3:
 				note.modulate = Color("ffcc4dff")
 			else:
-				note.modulate = Color("4da6ffff") if note.track in [1,5] else Color.WHITE
+				note.modulate = Color("66b3ffff") if note.track in [1,5] else Color.WHITE
 	active_notes.append(note)
 
 
@@ -239,7 +239,7 @@ func update_active_notes() -> void:
 			last_note_time = note.time
 			last_note_pos = note.global_position.y
 		
-		if abs(note.time - music_time) <= judgment.RatingRange.Miss and (!judgment.judgment_list[note.track].has(note)) and (!note.hited):
+		if abs(note.time - music_time) <= judgment.rating_range[judgment.Rating.Miss] and (!judgment.judgment_list[note.track].has(note)) and (!note.hited):
 			judgment.judgment_list[note.track].append(note)
 
 
@@ -293,25 +293,25 @@ func recycle_expired_notes() -> void:
 					expired_notes.append(note)
 					continue
 				
-				if note.time - c_music_time <= -judgment.RatingRange.Miss and !expired_notes.has(note):
+				if note.time - c_music_time <= -judgment.rating_range[judgment.Rating.Miss] and !expired_notes.has(note):
 					judgment.judgment(note.time, c_music_time)
 					expired_notes.append(note)
 				
 			&"hold":
 				var dt :float = note.time - c_music_time
-				if (dt <= -judgment.RatingRange.Miss or note.hited) and (not note.holding) and note.modulate.a != 0.5:
+				if (dt <= -judgment.rating_range[judgment.Rating.Miss] or note.hited) and (not note.holding) and note.modulate.a != 0.5:
 					note.modulate.a = 0.5
-					if dt < -judgment.RatingRange.Miss:
+					if dt < -judgment.rating_range[judgment.Rating.Miss]:
 						judgment.judgment(note.time, c_music_time)
 				
 				var edt: float = note.end_time - c_music_time
-				if (edt <= -judgment.RatingRange.Miss or (note.holding and edt <= -judgment.RatingRange.Good)) and !note.released:
+				if (edt <= -judgment.rating_range[judgment.Rating.Miss] or (note.holding and edt <= -judgment.rating_range[judgment.Rating.Good])) and !note.released:
 					if judgment.release_list[note.track].has(note):
 						judgment.release_list[note.track].erase(note)
 					note.released = true
 					judgment.judgment(note.end_time, c_music_time)
 					
-				if edt < -judgment.RatingRange.Bad and note.end.global_position.y > 1080.0:
+				if edt < -judgment.rating_range[judgment.Rating.Meh] and note.end.global_position.y > 1080.0:
 					expired_notes.append(note)
 		
 	while expired_notes.size() > 0:

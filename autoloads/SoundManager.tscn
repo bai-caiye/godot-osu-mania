@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://c65nxemcyqi2a"]
+
+[ext_resource type="Script" uid="uid://cytvrg1x168hj" path="res://autoloads/SoundManager.gd" id="1_rlake"]
+
+[node name="SoundManager" type="Node" unique_id=832910518 node_paths=PackedStringArray("bgm", "sfx")]
+script = ExtResource("1_rlake")
+bgm = NodePath("BGM")
+sfx = NodePath("SFX")
+
+[node name="BGM" type="AudioStreamPlayer" parent="." unique_id=1836234465]
+bus = &"Music"
+
+[node name="SFX" type="Node" parent="." unique_id=988709325]

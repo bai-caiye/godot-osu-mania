@@ -29,6 +29,9 @@ driver/output_latency=5
 
 SongLoader="*res://autoloads/SongLoader.gd"
 Setting="*uid://bh1s1qqni4t4d"
+Global="*uid://es8ker7cn6dl"
+SoundManager="*uid://c65nxemcyqi2a"
+Scene="*uid://cxxxgoxcv8svu"
 
 [debug]
 

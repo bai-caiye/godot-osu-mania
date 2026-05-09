@@ -6,71 +6,86 @@
 
 [sub_resource type="Gradient" id="Gradient_2jhgy"]
 interpolation_mode = 2
-offsets = PackedFloat32Array(0, 0.13855422, 0.85542166, 1)
-colors = PackedColorArray(0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0)
+offsets = PackedFloat32Array(0, 0.2, 0.8, 1)
+colors = PackedColorArray(1, 0.775, 0.100000024, 0, 1, 0.7764706, 0.09803922, 1, 1, 0.775, 0.100000024, 1, 1, 0.775, 0.100000024, 0)
 
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_g2dnx"]
+resource_local_to_scene = true
 gradient = SubResource("Gradient_2jhgy")
+width = 250
 
-[node name="JudgmentBar" type="Control" unique_id=233045596 node_paths=PackedStringArray("pos_line_pool")]
+[node name="JudgmentBar" type="Control" unique_id=233045596 node_paths=PackedStringArray("bars", "pos_line_pool")]
 layout_mode = 3
 anchors_preset = 0
 mouse_filter = 2
 script = ExtResource("1_y4w3i")
+bars = [NodePath("Control/Meh"), NodePath("Control/OK"), NodePath("Control/Good"), NodePath("Control/Great"), NodePath("Control/Perfect")]
 pos_line_pool = NodePath("PosLinePool")
 
 [node name="Control" type="Control" parent="." unique_id=1552526237]
 anchors_preset = 0
 offset_left = -125.0
-offset_top = -12.0
+offset_top = -11.0
 offset_right = 125.0
-offset_bottom = 8.0
+offset_bottom = 9.0
 pivot_offset = Vector2(125, 0)
 
-[node name="TextureRect" type="TextureRect" parent="Control" unique_id=903664086]
+[node name="Meh" type="TextureRect" parent="Control" unique_id=903664086]
 modulate = Color(1, 1, 1, 0.7647059)
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.49800003
-anchor_top = 0.675
-anchor_right = 0.49800003
-anchor_bottom = 0.675
-offset_left = -155.15216
-offset_top = -13.5
-offset_right = 155.2826
-offset_bottom = 10.5
+anchor_left = 0.5
+anchor_top = 0.6
+anchor_right = 0.5
+anchor_bottom = 0.6
+offset_left = -125.0
+offset_top = -2.0
+offset_right = 125.0
 texture = SubResource("GradientTexture1D_g2dnx")
 
-[node name="ColorRect2" type="ColorRect" parent="Control" unique_id=860272477]
-layout_mode = 0
-offset_top = 9.5
-offset_right = 250.0
-offset_bottom = 13.5
-color = Color(0.5, 0.050000012, 0.050000012, 1)
+[node name="OK" type="ColorRect" parent="Control" unique_id=2121350222]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.6
+anchor_right = 0.5
+anchor_bottom = 0.6
+offset_left = -79.0
+offset_top = -2.0
+offset_right = 79.33
+color = Color(0.3575, 0.65, 0.06500001, 1)
 
-[node name="ColorRect3" type="ColorRect" parent="Control" unique_id=1990714960]
-layout_mode = 0
-offset_left = 11.0
-offset_top = 9.5
-offset_right = 240.0
-offset_bottom = 13.5
-color = Color(0.65, 0.45987496, 0.2275, 1)
+[node name="Good" type="ColorRect" parent="Control" unique_id=1392251871]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.6
+anchor_right = 0.5
+anchor_bottom = 0.6
+offset_left = -56.5
+offset_top = -2.0
+offset_right = 56.380005
+color = Color(0.45000002, 0.8, 0.2, 1)
 
-[node name="ColorRect4" type="ColorRect" parent="Control" unique_id=2121350222]
-layout_mode = 0
-offset_left = 29.0
-offset_top = 9.5
-offset_right = 221.5
-offset_bottom = 13.5
-color = Color(0.11624994, 0.9, 0.04500001, 1)
+[node name="Great" type="ColorRect" parent="Control" unique_id=1127014024]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.6
+anchor_right = 0.5
+anchor_bottom = 0.6
+offset_left = -32.0
+offset_top = -2.0
+offset_right = 32.0
+color = Color(0.19999999, 0.7866667, 1, 1)
 
-[node name="ColorRect6" type="ColorRect" parent="Control" unique_id=1127014024]
+[node name="Perfect" type="ColorRect" parent="Control" unique_id=706015539]
 layout_mode = 0
-offset_left = 94.0
-offset_top = 9.5
-offset_right = 156.5
-offset_bottom = 13.5
-color = Color(0.3, 0.81333333, 1, 1)
+offset_left = 112.5
+offset_top = 10.0
+offset_right = 137.5
+offset_bottom = 12.0
+color = Color(0.39999998, 0.9, 1, 1)
 
 [node name="PosLinePool" type="Node2D" parent="." unique_id=962299390]
 script = ExtResource("2_igr8j")

@@ -1,5 +1,8 @@
 extends Node
-## 全局设置
+## 玩家设置
+
+@export_range(10.0, 10000.0) var speed: float = 1500   ## 整体速度
+@export_range(-1.0, 1.0) var offset: float = 0.0       ## 整体偏移
 
 ## 键位映射
 var key_binding :Dictionary = {
@@ -13,12 +16,3 @@ var key_binding :Dictionary = {
 	8: {KEY_A:0, KEY_S:1, KEY_D:2, KEY_F:3, KEY_J:4, KEY_K:5, KEY_L:6, KEY_SEMICOLON:7},
 	10:{KEY_A:0, KEY_S:1, KEY_D:2, KEY_F:3, KEY_V:4, KEY_N:5, KEY_J:6, KEY_K:7, KEY_L:8, KEY_SEMICOLON:9},
 }
-
-var full_screen :bool =false
-func _unhandled_key_input(event: InputEvent) -> void:
-	
-	if event.keycode == KEY_F11 and event.pressed and !event.is_echo():
-		full_screen = !full_screen
-		DisplayServer.window_set_mode(
-		DisplayServer.WINDOW_MODE_FULLSCREEN if full_screen else DisplayServer.WINDOW_MODE_WINDOWED)
-		DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, full_screen)

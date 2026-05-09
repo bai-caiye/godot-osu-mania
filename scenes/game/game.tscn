@@ -17,20 +17,21 @@ process_priority = -1
 process_physics_priority = -1
 script = ExtResource("2_33cqm")
 chart_path = "res://test/351345 Randy Mortimer - Penguin (Pinnacle Remix)/Randy Mortimer - Penguin (Pinnacle Remix) (Cuppp) [7K].osu"
-bg = NodePath("CanvasLayer/BG")
+auto_play = true
+bg = NodePath("BGLayer/BG")
 music = NodePath("Music")
-tracks = NodePath("CanvasLayer/Tracks")
+tracks = NodePath("BGLayer/Tracks")
 lead_in_timer = NodePath("Lead-inTimer")
-progress_bar = NodePath("ProgressBar")
+progress_bar = NodePath("HUDLayer/ProgressBar")
 tap_pool = NodePath("Notes/TapNotePool")
 hold_pool = NodePath("Notes/HoldNotePool")
 judgment = NodePath("Judgment")
 metadata/_edit_lock_ = true
 
-[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=941320006]
+[node name="BGLayer" type="CanvasLayer" parent="." unique_id=941320006]
 layer = -1
 
-[node name="BG" type="TextureRect" parent="CanvasLayer" unique_id=1366531993]
+[node name="BG" type="TextureRect" parent="BGLayer" unique_id=1366531993]
 process_mode = 4
 modulate = Color(0.6, 0.6, 0.6, 1)
 anchors_preset = 15
@@ -43,14 +44,17 @@ expand_mode = 1
 stretch_mode = 6
 metadata/_edit_lock_ = true
 
-[node name="Tracks" parent="CanvasLayer" unique_id=1244043121 instance=ExtResource("2_dbls1")]
+[node name="Tracks" parent="BGLayer" unique_id=1244043121 instance=ExtResource("2_dbls1")]
 process_mode = 4
 process_priority = 2
 line_Y = 880.0
+metadata/_edit_lock_ = true
 
 [node name="Notes" type="Node2D" parent="." unique_id=583305566]
 z_index = 1
 position = Vector2(960, 0)
+metadata/_edit_lock_ = true
+metadata/_edit_group_ = true
 
 [node name="TapNotePool" type="Node2D" parent="Notes" unique_id=856678103]
 script = ExtResource("3_kelw5")
@@ -69,11 +73,11 @@ metadata/_custom_type_script = "uid://d1yvrkddhp5ak"
 [node name="Judgment" type="Node" parent="." unique_id=305832376 node_paths=PackedStringArray("tracks", "controller", "combo_l", "rating_L", "j_pos")]
 process_priority = -1
 script = ExtResource("6_bdhmt")
-tracks = NodePath("../CanvasLayer/Tracks")
+tracks = NodePath("../BGLayer/Tracks")
 controller = NodePath("..")
-combo_l = NodePath("../Combo")
-rating_L = NodePath("../rating")
-j_pos = NodePath("../JudgmentBar")
+combo_l = NodePath("../HUDLayer/Combo")
+rating_L = NodePath("../HUDLayer/rating")
+j_pos = NodePath("../HUDLayer/JudgmentBar")
 
 [node name="Music" type="AudioStreamPlayer" parent="." unique_id=1590063657]
 process_priority = 1
@@ -82,38 +86,41 @@ process_priority = 1
 wait_time = 1.6
 one_shot = true
 
-[node name="ProgressBar" type="ColorRect" parent="." unique_id=479438872 node_paths=PackedStringArray("music")]
+[node name="HUDLayer" type="CanvasLayer" parent="." unique_id=1006220166]
+layer = 5
+
+[node name="ProgressBar" type="ColorRect" parent="HUDLayer" unique_id=479438872 node_paths=PackedStringArray("music")]
 process_mode = 1
-top_level = true
 custom_minimum_size = Vector2(0, 3)
 anchors_preset = 10
 anchor_right = 1.0
+offset_bottom = 3.0
 grow_horizontal = 2
 mouse_filter = 2
 color = Color(1, 1, 1, 0.5882353)
 script = ExtResource("3_lnu2h")
-music = NodePath("../Music")
+music = NodePath("../../Music")
 metadata/_edit_lock_ = true
 
-[node name="Combo" type="Label" parent="." unique_id=894282894]
-top_level = true
+[node name="Combo" type="Label" parent="HUDLayer" unique_id=894282894]
 z_index = 5
 anchors_preset = -1
 anchor_left = 0.5
 anchor_top = 0.3
 anchor_right = 0.5
 anchor_bottom = 0.3
-offset_left = -20.0
-offset_top = -12.0
-offset_right = 20.0
-offset_bottom = 11.0
+offset_left = -34.5
+offset_top = -28.0
+offset_right = 34.5
+offset_bottom = 27.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_font_sizes/font_size = 36
+theme_override_font_sizes/font_size = 40
+text = "000"
 horizontal_alignment = 1
+metadata/_edit_lock_ = true
 
-[node name="rating" parent="." unique_id=1738127207 instance=ExtResource("9_2a8rs")]
-top_level = true
+[node name="rating" parent="HUDLayer" unique_id=1738127207 instance=ExtResource("9_2a8rs")]
 z_index = 6
 anchors_preset = -1
 anchor_left = 0.5
@@ -126,17 +133,20 @@ grow_horizontal = 2
 grow_vertical = 2
 metadata/_edit_lock_ = true
 
-[node name="JudgmentBar" parent="." unique_id=233045596 instance=ExtResource("10_4j704")]
-top_level = true
+[node name="JudgmentBar" parent="HUDLayer" unique_id=233045596 instance=ExtResource("10_4j704")]
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_top = -12.0
-offset_bottom = -12.0
+offset_left = -1.0
+offset_top = -167.0
+offset_right = -1.0
+offset_bottom = -167.0
 grow_horizontal = 2
 grow_vertical = 0
+metadata/_edit_lock_ = true
 
-[node name="TestMenu" parent="." unique_id=179995671 instance=ExtResource("8_87uf6")]
+[node name="TestMenu" parent="HUDLayer" unique_id=179995671 instance=ExtResource("8_87uf6")]
+top_level = false
 metadata/_edit_lock_ = true

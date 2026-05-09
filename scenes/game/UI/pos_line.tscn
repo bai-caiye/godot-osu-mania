@@ -3,8 +3,8 @@
 [ext_resource type="Script" uid="uid://dll0rx12bvofv" path="res://scenes/game/UI/pos_line.gd" id="1_b7kte"]
 
 [node name="PosLine" type="ColorRect" unique_id=1462713611]
-offset_left = -1.5
-offset_top = -12.0
-offset_right = 1.5
-offset_bottom = 12.0
+offset_left = -1.25
+offset_top = -8.0
+offset_right = 1.25
+offset_bottom = 8.0
 script = ExtResource("1_b7kte")

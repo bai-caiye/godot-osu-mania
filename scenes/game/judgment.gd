@@ -1,5 +1,7 @@
 extends Node
+## 判定脚本
 
+@export_group("Node")
 @export var tracks: Tracks
 @export var controller: Node2D
 @export var combo_l: Label
@@ -7,28 +9,39 @@ extends Node
 @export var j_pos: Control
 var lights :Array[TextureRect] = []
 
-const RatingRange :Dictionary = {
-	"Perfect": 0.0165,
-	"Great"  : 0.045,
-	"Good"   : 0.075,
-	"OK"     : 0.140,
-	"Bad"    : 0.165,
-	"Miss"   : 0.18}
-
-var rating :Dictionary = {
-	"Perfect":0,
-	"Great":0,
-	"Good":0,
-	"OK":0,
-	"Bad":0,
-	"Miss":0
-	}
-	
+## 评分名称
+enum Rating{
+	Perfect,
+	Great,
+	Good,
+	OK,
+	Meh,
+	Miss,
+}
+## 判定区间
+var rating_range :Dictionary[Rating, float] = {
+	Rating.Perfect: 0.0165,
+	Rating.Great  : 0.0415,
+	Rating.Good   : 0.0745,
+	Rating.OK     : 0.1045,
+	Rating.Meh    : 0.1285,
+	Rating.Miss   : 0.1655
+}
+## 本场评分
+var rating :Dictionary[Rating, int] = {
+	Rating.Perfect: 0,
+	Rating.Great  : 0,
+	Rating.Good   : 0,
+	Rating.OK     : 0,
+	Rating.Meh    : 0,
+	Rating.Miss   : 0
+}
 
 var key_map :Dictionary
 var keys :Array[bool] = [false, false, false, false,false, false, false, false,false, false]
+var deviations :Array[float] = []
 var judgment_list :Array[Array] = []  ## 判定区 用来存进入判定区间的note
-var release_list :Array[Array] = []
+var release_list :Array[Array] = []   ## 释放区
 
 var max_combo :int = 0
 var combo :int = 0:
@@ -38,9 +51,10 @@ var combo :int = 0:
 		if combo > max_combo:
 			max_combo = combo
 
+
 func init() -> void:
 	keys = [false, false, false, false,false, false, false, false,false, false]
-	j_pos.init()
+	deviations.clear()
 	judgment_list.clear()
 	release_list.clear()
 	
@@ -48,9 +62,22 @@ func init() -> void:
 		judgment_list.append([])
 		release_list.append([])
 	
+	j_pos.init()
 	rating_init()
 	combo = 0
 	max_combo = 0
+
+
+func rating_init() -> void:
+	rating = {
+	Rating.Perfect: 0,
+	Rating.Great  : 0,
+	Rating.Good   : 0,
+	Rating.OK     : 0,
+	Rating.Meh    : 0,
+	Rating.Miss   : 0
+	}
+
 
 func _ready() -> void:
 	lights = tracks.lights
@@ -96,62 +123,48 @@ func released(track :int, time :float) -> void:
 		note.released = true
 		note.modulate.a = 0.5
 		judgment(note.end_time, time)
-		if abs(note.end_time - time) <= RatingRange.OK:
+		if abs(note.end_time - time) <= rating_range[Rating.OK]:
 			note.set_length(note.head.global_position.y+10)
 
 
-func judgment(time :float, music_time :float) -> String:
-	var t :float = abs(time - music_time)
-	if t <= RatingRange.Perfect:
-		rating.Perfect += 1
+func judgment(time :float, music_time :float) -> void:
+	var dt :float = abs(music_time - time)
+	if dt <= rating_range[Rating.Perfect]:
+		rating[Rating.Perfect] += 1
 		combo += 1
 		rating_L.show_rating(0)
 		j_pos.add_line(music_time - time, 0)
-		return "Perfect"
+		return
 		
-	elif t <= RatingRange.Great:
-		rating.Great += 1
+	elif dt <= rating_range[Rating.Great]:
+		rating[Rating.Great] += 1
 		combo += 1
 		rating_L.show_rating(1)
 		j_pos.add_line(music_time - time, 1)
-		return "Great"
+		return
 		
-	elif t <= RatingRange.Good:
-		rating.Good += 1
+	elif dt <= rating_range[Rating.Good]:
+		rating[Rating.Good] += 1
 		combo += 1
 		rating_L.show_rating(2)
 		j_pos.add_line(music_time - time, 2)
-		return "Good"
+		return
 		
-	elif t <= RatingRange.OK:
-		rating.OK += 1
+	elif dt <= rating_range[Rating.OK]:
+		rating[Rating.OK] += 1
 		combo += 1
 		rating_L.show_rating(2)
 		j_pos.add_line(music_time - time, 3)
-		return "OK"
+		return
 	
-	elif t <= RatingRange.Bad:
-		rating.Bad += 1
+	elif dt <= rating_range[Rating.Meh]:
+		rating[Rating.Meh] += 1
 		combo = 0
 		rating_L.show_rating(3)
 		j_pos.add_line(music_time - time, 4)
-		return "Bad"
+		return
 	
-	
-	rating.Miss += 1
+	rating[Rating.Miss] += 1
 	combo = 0
 	rating_L.show_rating(4)
 	j_pos.add_line(music_time - time, 5)
-	return "Miss"
-
-
-func rating_init() -> void:
-	rating = {
-	"Perfect":0,
-	"Great":0,
-	"Good":0,
-	"OK":0,
-	"Bad":0,
-	"Miss":0
-	}
-	
