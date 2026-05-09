@@ -42,7 +42,7 @@ alignment = 1
 
 [node name="ColorRect2" type="ColorRect" parent="HBoxContainer" unique_id=297169976]
 z_index = 1
-custom_minimum_size = Vector2(4, 0)
+custom_minimum_size = Vector2(5, 0)
 layout_mode = 2
 color = Color(0.1, 0.1, 0.1, 1)
 
@@ -54,62 +54,52 @@ alignment = 1
 [node name="track1" parent="HBoxContainer/tracks" unique_id=1380217950 instance=ExtResource("2_lp400")]
 modulate = Color(1, 1, 1, 0.7)
 layout_mode = 2
-color = Color(0, 0, 0, 1)
 
 [node name="track2" parent="HBoxContainer/tracks" unique_id=638853253 instance=ExtResource("2_lp400")]
 modulate = Color(1, 1, 1, 0.7)
 layout_mode = 2
-color = Color(0, 0, 0, 1)
 
 [node name="track3" parent="HBoxContainer/tracks" unique_id=772228070 instance=ExtResource("2_lp400")]
 modulate = Color(1, 1, 1, 0.7)
 layout_mode = 2
-color = Color(0, 0, 0, 1)
 
 [node name="track4" parent="HBoxContainer/tracks" unique_id=1881764500 instance=ExtResource("2_lp400")]
 modulate = Color(1, 1, 1, 0.7)
 layout_mode = 2
-color = Color(0, 0, 0, 1)
 
 [node name="track5" parent="HBoxContainer/tracks" unique_id=950032847 instance=ExtResource("2_lp400")]
 visible = false
 modulate = Color(1, 1, 1, 0.7)
 layout_mode = 2
-color = Color(0, 0, 0, 1)
 
 [node name="track6" parent="HBoxContainer/tracks" unique_id=209535473 instance=ExtResource("2_lp400")]
 visible = false
 modulate = Color(1, 1, 1, 0.7)
 layout_mode = 2
-color = Color(0, 0, 0, 1)
 
 [node name="track7" parent="HBoxContainer/tracks" unique_id=2014242405 instance=ExtResource("2_lp400")]
 visible = false
 modulate = Color(1, 1, 1, 0.7)
 layout_mode = 2
-color = Color(0, 0, 0, 1)
 
 [node name="track8" parent="HBoxContainer/tracks" unique_id=895085525 instance=ExtResource("2_lp400")]
 visible = false
 modulate = Color(1, 1, 1, 0.7)
 layout_mode = 2
-color = Color(0, 0, 0, 1)
 
 [node name="track9" parent="HBoxContainer/tracks" unique_id=572967189 instance=ExtResource("2_lp400")]
 visible = false
 modulate = Color(1, 1, 1, 0.7)
 layout_mode = 2
-color = Color(0, 0, 0, 1)
 
 [node name="track10" parent="HBoxContainer/tracks" unique_id=1691647614 instance=ExtResource("2_lp400")]
 visible = false
 modulate = Color(1, 1, 1, 0.7)
 layout_mode = 2
-color = Color(0, 0, 0, 1)
 
 [node name="ColorRect" type="ColorRect" parent="HBoxContainer" unique_id=976413214]
 z_index = 1
-custom_minimum_size = Vector2(4, 0)
+custom_minimum_size = Vector2(5, 0)
 layout_mode = 2
 color = Color(0.1, 0.1, 0.1, 1)
 

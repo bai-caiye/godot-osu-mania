@@ -10,6 +10,6 @@ func reset() -> void:
 	position.x = 0
 
 func _physics_process(delta: float) -> void:
-	modulate.a -= 0.15 * delta
+	modulate.a -= 0.12 * delta
 	if modulate.a <= 0.0:
 		queue_free()

@@ -10,7 +10,7 @@ shader_parameter/radius = 4.00000019
 modulate = Color(1, 1, 1, 0.9)
 custom_minimum_size = Vector2(70, 0)
 mouse_filter = 2
-color = Color(0, 0, 0, 0.745098)
+color = Color(0, 0, 0, 1)
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1978891921]
 show_behind_parent = true
