@@ -128,7 +128,9 @@ func released(track :int, time :float) -> void:
 
 
 func judgment(time :float, music_time :float) -> void:
+	deviations.append(music_time - time)
 	var dt :float = abs(music_time - time)
+	
 	if dt <= rating_range[Rating.Perfect]:
 		rating[Rating.Perfect] += 1
 		combo += 1
