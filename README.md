@@ -1,5 +1,5 @@
 # Godot-OsuMania
-基于 **Godot4.6** + **GDScript **复刻的 **Osu!Mania** 模式
+基于 **Godot4.6** + **GDScript** 复刻的 **Osu!Mania** 模式
 
 项目使用 GPL-3.0 协议——任何修改与衍生版本必须继续开源
 
