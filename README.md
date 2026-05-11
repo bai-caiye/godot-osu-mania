@@ -48,7 +48,7 @@
 
 ## 🔜 待办事项
 
-- [ ] 接入更完善的结算系统（Combo, Accuracy, Rank）
+- [ ] 接入更完善的结算系统（Combo, Accuracy）
 - [ ] 实现谱面选择界面
 - [ ] 优化note渲染
 
