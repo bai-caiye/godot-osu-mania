@@ -102,13 +102,10 @@ func load_image(path: String) -> ImageTexture:
 
 ## 加载音频文件返回流
 func load_audio(path: String) -> AudioStream:
-	if !FileAccess.file_exists(path): printerr("路径音频文件不存在"); return AudioStream.new()
-	var audio :AudioStream
-	
-	match path.get_extension():
-		"mp3": audio = AudioStreamMP3.new()
-		"wav": audio = AudioStreamWAV.new()
+	if !FileAccess.file_exists(path): printerr("路径音频文件不存在: ", path); return null
+
+	match path.get_extension().to_lower():
+		"mp3": return AudioStreamMP3.load_from_file(path)
+		"wav": return AudioStreamWAV.load_from_file(path)
 		"ogg": return AudioStreamOggVorbis.load_from_file(path)
-	
-	audio.data = FileAccess.get_file_as_bytes(path)
-	return audio
+		_: printerr("不支持的音频格式: ", path.get_extension()); return null

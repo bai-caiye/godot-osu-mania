@@ -9,6 +9,7 @@ var time :float = 0.0       ## 打击时机
 var track :int = 0          ## 在哪条轨道上
 var end_time :float = 0.0   ## hold的持续时间
 var hited :bool = false
+var in_judgment :bool = false
 var holding :bool = false:
 	set(v):
 		if !v and holding:
@@ -35,6 +36,7 @@ func reset() -> void:
 	track = -1
 	visible = false
 	hited = false
+	in_judgment = false
 	holding = false
 	released = false
 	head.position.y = 0

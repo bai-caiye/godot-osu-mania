@@ -48,10 +48,9 @@ func clear_pool() -> void:
 func acquire_node() -> Node:
 	var node = pool.pop_back()
 	if !is_instance_valid(node): node = _create_node()
-	
+
 	active_nodes[node] = true
 	node.visible = true
-	node.process_mode = Node.PROCESS_MODE_INHERIT
 	return node
 
 
@@ -80,8 +79,7 @@ func recycle_all_nodes() -> void:
 # 把回收节点重置
 func _recycle_reset(node :Node) -> void:
 	node.visible = false
-	node.process_mode = PROCESS_MODE_DISABLED
-	node.reset()    # 需要在node脚本里自行定义reset方法
+	node.reset()
 
 
 ## 释放该池节点 用于避免自行 [method queue_free] 导致无效节点遗留在列表造成计数错误

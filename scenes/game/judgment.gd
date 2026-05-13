@@ -1,5 +1,5 @@
+## 判定系统：快速判定、combo 管理、评分统计
 extends Node
-## 判定脚本
 
 @export_group("Node")
 @export var tracks: Tracks
@@ -7,10 +7,9 @@ extends Node
 @export var combo_l: Label
 @export var rating_L: Control
 @export var j_pos: Control
-var lights :Array[TextureRect] = []
+var lights: Array[TextureRect] = []
 
-## 评分名称
-enum Rating{
+enum Rating {
 	Perfect,
 	Great,
 	Good,
@@ -18,33 +17,24 @@ enum Rating{
 	Meh,
 	Miss,
 }
-## 判定区间
-var rating_range :Dictionary[Rating, float] = {
-	Rating.Perfect: 0.0165,
-	Rating.Great  : 0.0415,
-	Rating.Good   : 0.0745,
-	Rating.OK     : 0.1045,
-	Rating.Meh    : 0.1285,
-	Rating.Miss   : 0.1655
-}
-## 本场评分
-var rating :Dictionary[Rating, int] = {
-	Rating.Perfect: 0,
-	Rating.Great  : 0,
-	Rating.Good   : 0,
-	Rating.OK     : 0,
-	Rating.Meh    : 0,
-	Rating.Miss   : 0
-}
 
-var key_map :Dictionary
-var keys :Array[bool] = [false, false, false, false,false, false, false, false,false, false]
-var deviations :Array[float] = []
-var judgment_list :Array[Array] = []  ## 判定区 用来存进入判定区间的note
-var release_list :Array[Array] = []   ## 释放区
+## 判定窗口（秒），按 Rating 顺序排列
+var rating_range: Array[float] = [0.0165, 0.042, 0.0745, 0.1045, 0.1285, 0.1655]
 
-var max_combo :int = 0
-var combo :int = 0:
+## Rating 索引到精灵帧的映射（OK 和 Good 共享帧 2）
+var rating_to_frame: Array[int] = [0, 1, 2, 2, 3, 4]
+
+## 本场评分计数，按 Rating 顺序排列
+var rating: Array[int] = [0, 0, 0, 0, 0, 0]
+
+var key_map: Dictionary
+var keys: Array[bool] = []
+var deviations: Array[float] = []
+var judgment_list: Array[Array] = []
+var release_list: Array[Array] = []
+
+var max_combo: int = 0
+var combo: int = 0:
 	set(v):
 		combo = v
 		combo_l.text = str(combo)
@@ -53,30 +43,21 @@ var combo :int = 0:
 
 
 func init() -> void:
-	keys = [false, false, false, false,false, false, false, false,false, false]
+	var key_qty = controller.key_quantity
+	keys.resize(key_qty)
+	keys.fill(false)
 	deviations.clear()
 	judgment_list.clear()
 	release_list.clear()
-	
-	for i in controller.key_quantity:
+
+	for i in key_qty:
 		judgment_list.append([])
 		release_list.append([])
-	
+
 	j_pos.init()
-	rating_init()
+	rating.fill(0)
 	combo = 0
 	max_combo = 0
-
-
-func rating_init() -> void:
-	rating = {
-	Rating.Perfect: 0,
-	Rating.Great  : 0,
-	Rating.Good   : 0,
-	Rating.OK     : 0,
-	Rating.Meh    : 0,
-	Rating.Miss   : 0
-	}
 
 
 func _ready() -> void:
@@ -85,18 +66,19 @@ func _ready() -> void:
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if controller.auto_play: return
-	
+
+	var keycode = event.keycode
+	if keycode not in key_map:
+		return
+
+	var track = key_map[keycode]
 	if event.pressed and !event.is_echo():
-		if event.keycode in key_map:
-			keys[key_map[event.keycode]] = true
-			hit(key_map[event.keycode], controller.music_time)
-		
-	if event.is_released():
-		if event.keycode in key_map:
-			keys[key_map[event.keycode]] = false
-			if release_list[key_map[event.keycode]].is_empty():
-				return
-			released(key_map[event.keycode], controller.music_time)
+		keys[track] = true
+		hit(track, controller.music_time)
+	elif event.is_released():
+		keys[track] = false
+		if !release_list[track].is_empty():
+			released(track, controller.music_time)
 
 
 func _physics_process(delta: float) -> void:
@@ -104,69 +86,45 @@ func _physics_process(delta: float) -> void:
 		lights[i].modulate.a = lerp(lights[i].modulate.a, float(keys[i]), delta * 10)
 
 
-func hit(track :int, time :float) -> void:
-	if judgment_list[track].is_empty(): return
-	var note :Node2D = judgment_list[track].front()
+func hit(track: int, time: float) -> void:
+	if judgment_list[track].is_empty():
+		return
+	var note: Node2D = judgment_list[track].pop_front()
 	if note and !note.hited:
 		note.hited = true
 		if note.type == &"hold":
 			note.holding = true
 			release_list[track].append(note)
 		judgment(note.time, time)
-		judgment_list[track].erase(note)
 
 
-func released(track :int, time :float) -> void:
-	var note :Node2D = release_list[track].pop_front()
+func released(track: int, time: float) -> void:
+	var note: Node2D = release_list[track].pop_front()
 	if note and note.type == &"hold" and note.hited:
 		note.holding = false
 		note.released = true
 		note.modulate.a = 0.5
 		judgment(note.end_time, time)
 		if abs(note.end_time - time) <= rating_range[Rating.OK]:
-			note.set_length(note.head.global_position.y+10)
+			note.set_length(note.head.global_position.y + 10)
 
 
-func judgment(time :float, music_time :float) -> void:
+func judgment(time: float, music_time: float) -> void:
 	deviations.append(music_time - time)
-	var dt :float = abs(music_time - time)
-	
-	if dt <= rating_range[Rating.Perfect]:
-		rating[Rating.Perfect] += 1
+	var dt: float = abs(music_time - time)
+
+	var rating_idx: int = Rating.Miss
+	for i in rating_range.size():
+		if dt <= rating_range[i]:
+			rating_idx = i
+			break
+
+	rating[rating_idx] += 1
+	if rating_idx < Rating.Meh:
 		combo += 1
-		rating_L.show_rating(0)
-		j_pos.add_line(music_time - time, 0)
-		return
-		
-	elif dt <= rating_range[Rating.Great]:
-		rating[Rating.Great] += 1
-		combo += 1
-		rating_L.show_rating(1)
-		j_pos.add_line(music_time - time, 1)
-		return
-		
-	elif dt <= rating_range[Rating.Good]:
-		rating[Rating.Good] += 1
-		combo += 1
-		rating_L.show_rating(2)
-		j_pos.add_line(music_time - time, 2)
-		return
-		
-	elif dt <= rating_range[Rating.OK]:
-		rating[Rating.OK] += 1
-		combo += 1
-		rating_L.show_rating(2)
-		j_pos.add_line(music_time - time, 3)
-		return
-	
-	elif dt <= rating_range[Rating.Meh]:
-		rating[Rating.Meh] += 1
+	else:
 		combo = 0
-		rating_L.show_rating(3)
-		j_pos.add_line(music_time - time, 4)
-		return
-	
-	rating[Rating.Miss] += 1
-	combo = 0
-	rating_L.show_rating(4)
-	j_pos.add_line(music_time - time, 5)
+
+	var frame = rating_to_frame[rating_idx]
+	rating_L.show_rating(frame)
+	j_pos.add_line(music_time - time, rating_idx)
