@@ -5,6 +5,7 @@ extends Control
 
 func _init() -> void:
 	visible = false
+	process_mode = Node.PROCESS_MODE_INHERIT
 
 func show_rating(rating:int):
 	animat.stop()

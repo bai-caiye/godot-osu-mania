@@ -48,7 +48,8 @@ func clear_pool() -> void:
 func acquire_node() -> Node:
 	var node = pool.pop_back()
 	if !is_instance_valid(node): node = _create_node()
-
+	
+	node.init()
 	active_nodes[node] = true
 	node.visible = true
 	return node

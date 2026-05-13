@@ -17,6 +17,7 @@ var holding :bool = false:
 		holding = v
 var released :bool = false
 
+func init() -> void: pass
 
 ## 设置尾头位置更改长度
 func set_length(end_pos :float, head_pos :float = head.global_position.y) -> void:
@@ -26,7 +27,6 @@ func set_length(end_pos :float, head_pos :float = head.global_position.y) -> voi
 	head.global_position.y = head_pos
 	end.global_position.y = end_pos
 	body.scale.y = (head_pos - end_pos) / 100.0
-
 
 func reset() -> void:
 	time = 0.0
@@ -39,6 +39,6 @@ func reset() -> void:
 	in_judgment = false
 	holding = false
 	released = false
-	head.position.y = 0
-	end.position.y = 0
-	body.scale.y = 1
+	head.position.y = 0.0
+	end.position.y = 0.0
+	body.scale.y = 1.0

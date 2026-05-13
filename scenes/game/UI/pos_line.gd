@@ -1,5 +1,8 @@
 extends ColorRect
 
+func init() -> void:
+	process_mode = Node.PROCESS_MODE_INHERIT
+
 func reset() -> void:
 	modulate = Color.WHITE
 	modulate.a = 1

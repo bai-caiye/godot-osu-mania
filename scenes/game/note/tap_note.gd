@@ -6,6 +6,8 @@ var track :int = 0          ## 在哪条轨道上
 var hited :bool = false
 var in_judgment :bool = false
 
+func init() -> void: pass
+
 func reset() -> void:
 	time = 0.0
 	track = -1
